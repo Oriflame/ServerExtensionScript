@@ -4,6 +4,12 @@ param
 	[Parameter(Mandatory=$true)]
 	[string]$serverEnv,
 
+    [Parameter(Mandatory=$true)]
+	[string]$serverRegion,
+
+    [Parameter(Mandatory=$true)]
+	[string]$serverRole,
+
 	[Parameter(Mandatory=$true)]
 	[string]$SAS	
 
@@ -22,8 +28,10 @@ try
     netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes 
 
     "Server environment: $serverEnv" | Out-File $logFile -Append
+    "Server region: $serverRegion" | Out-File $logFile -Append
+    "Server role: $serverRole" | Out-File $logFile -Append
     "SAS token: $SAS" | Out-File $logFile -Append
-
+    
     #download install script
 
 }
