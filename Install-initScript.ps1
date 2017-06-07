@@ -27,10 +27,12 @@ try
     "Enabling Samba" | Out-File $logFile -Append
     netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes 
 
+    $sasDecoded = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($SAS))
+
     "Server environment: $serverEnv" | Out-File $logFile -Append
     "Server region: $serverRegion" | Out-File $logFile -Append
     "Server role: $serverRole" | Out-File $logFile -Append
-    "SAS token: $SAS" | Out-File $logFile -Append
+    "SAS token: $sasDecoded" | Out-File $logFile -Append
     
     #download install script
 
