@@ -21,6 +21,7 @@ $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyComm
 $currentScriptFolder = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 $logFile = "c:\logs\$scriptName.txt"
 "Current folder $currentScriptFolder" | Out-File $logFile
+Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 try
 {    
@@ -34,10 +35,26 @@ try
     "Server role: $serverRole" | Out-File $logFile -Append
     "SAS token: $sasDecoded" | Out-File $logFile -Append
     
+    if (!(test-path C:\OSEL)) {mkdir C:\OSEL }
+
     #download install script
+    Set-ExecutionPolicy Bypass
+    $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/OSEL.ZIP" + $sasDecoded    
+    (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\OSEL\OSEL.ZIP')
+    
+    #unzip install script    
+    Unzip "c:\OSEL\OSEL.zip" "C:\"
 
 }
 catch
 {
 	"An error ocurred: $_" | Out-File $logFile -Append
+}
+
+
+function Unzip
+{
+    param([string]$zipfile, [string]$outpath)
+
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
 }
