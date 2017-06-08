@@ -12,8 +12,14 @@ param
 
 	[Parameter(Mandatory=$true)]
 	[string]$SAS	
-
 )
+
+function Unzip
+{
+    param([string]$zipfile, [string]$outpath)
+
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
+}
 
 if (!(test-path C:\logs)) {mkdir C:\logs }
 
@@ -67,12 +73,4 @@ try
 catch
 {
 	"An error ocurred: $_" | Out-File $logFile -Append
-}
-
-
-function Unzip
-{
-    param([string]$zipfile, [string]$outpath)
-
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
 }
