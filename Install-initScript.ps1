@@ -35,15 +35,33 @@ try
     "Server role: $serverRole" | Out-File $logFile -Append
     "SAS token: $sasDecoded" | Out-File $logFile -Append
     
+    #------------------------------------------------------------------
     if (!(test-path C:\OSEL)) {mkdir C:\OSEL }
-
-    #download install script
+    "save aprameters as config file c:\OSEL\config.json" | Out-File $logFile -Append
+    @{env=$serverEnv;region=$serverRegion;role=$serverRole} | ConvertTo-Json | Out-File "c:\OSEL\config.json"        
+    #------------------------------------------------------------------
+    "download website" | Out-File $logFile -Append
+    if (!(test-path C:\TEMP\website)) {mkdir C:\TEMP\website }
+    $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/website.zip" + $sasDecoded    
+    (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\TEMP\website.zip')    
+    "unzip website to C:\temp\website\" | Out-File $logFile -Append
+    Unzip "c:\TEMP\website.zip" "C:\temp\website\"
+    #------------------------------------------------------------------
+    "download index" | Out-File $logFile -Append
+    if (!(test-path C:\TEMP\index)) {mkdir C:\TEMP\index }
+    $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/index.zip" + $sasDecoded    
+    (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\TEMP\index.zip')    
+    "unzip website to C:\temp\index\" | Out-File $logFile -Append
+    Unzip "c:\TEMP\index.zip" "C:\temp\index\"
+    #------------------------------------------------------------------
+    "download OSEL" | Out-File $logFile -Append
     Set-ExecutionPolicy Bypass
     $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/OSEL.ZIP" + $sasDecoded    
-    (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\OSEL\OSEL.ZIP')
-    
-    #unzip install script    
+    (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\OSEL\OSEL.ZIP')    
+    "unzip OSEL" | Out-File $logFile -Append
     Unzip "c:\OSEL\OSEL.zip" "C:\"
+    "run OSEL init-server.ps1" | Out-File $logFile -Append    
+    PS C:\OSEL\StandAloneScripts\ServerSetup\init-server.ps1     
 
 }
 catch
