@@ -60,8 +60,7 @@ try
     "unzip website to C:\temp\index\" | Out-File $logFile -Append
     Unzip "c:\TEMP\index.zip" "C:\temp\index\"
     #------------------------------------------------------------------
-    "download OSEL" | Out-File $logFile -Append
-    Set-ExecutionPolicy Bypass
+    "download OSEL" | Out-File $logFile -Append    
     $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/OSEL.ZIP" + $sasDecoded    
     (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\OSEL\OSEL.ZIP')    
     "unzip OSEL" | Out-File $logFile -Append
