@@ -38,14 +38,14 @@ try
     #------------------------------------------------------------------
     if (!(test-path C:\OSEL)) {mkdir C:\OSEL }
     "save aprameters as config file c:\OSEL\config.json" | Out-File $logFile -Append
-    @{env=$serverEnv;region=$serverRegion;role=$serverRole} | ConvertTo-Json | Out-File "c:\OSEL\config.json"        
+    @{env=$serverEnv;region=$serverRegion;role=$serverRole;SAS=$SAS} | ConvertTo-Json | Out-File "c:\OSEL\config.json"
     #------------------------------------------------------------------
     "download website" | Out-File $logFile -Append
     if (!(test-path C:\TEMP\website)) {mkdir C:\TEMP\website }
-    $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/website.zip" + $sasDecoded    
-    (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\TEMP\website.zip')    
+    $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/Website.zip" + $sasDecoded    
+    (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\TEMP\Website.zip')    
     "unzip website to C:\temp\website\" | Out-File $logFile -Append
-    Unzip "c:\TEMP\website.zip" "C:\temp\website\"
+    Unzip "c:\TEMP\Website.zip" "C:\temp\website\"
     #------------------------------------------------------------------
     "download index" | Out-File $logFile -Append
     if (!(test-path C:\TEMP\index)) {mkdir C:\TEMP\index }
