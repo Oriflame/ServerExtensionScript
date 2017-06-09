@@ -64,9 +64,10 @@ try
     $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/OSEL.ZIP" + $sasDecoded    
     (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\OSEL\OSEL.ZIP')    
     "unzip OSEL" | Out-File $logFile -Append
-    Unzip "c:\OSEL\OSEL.zip" "C:\"
+    Unzip "c:\OSEL\OSEL.zip" "C:\"    
     "run OSEL init-server.ps1" | Out-File $logFile -Append    
-    PS C:\OSEL\StandAloneScripts\ServerSetup\init-server.ps1     
+    Set-Location c:\OSEL\StandAloneScripts\ServerSetup\
+    Get-Process C:\OSEL\StandAloneScripts\ServerSetup\init-server.ps1     
 
 }
 catch
