@@ -20,57 +20,64 @@ function Unzip
 
     [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
 }
+function LogToFile
+{
+    param([string]$text, [string]$logFile)
+    $date = Get-Date -Format s
+    "$date : $text" | Out-File $logFile -Append
+}
 
 if (!(test-path C:\logs)) {mkdir C:\logs }
 
 $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Definition)
 $currentScriptFolder = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
 $logFile = "c:\logs\$scriptName.txt"
-"Current folder $currentScriptFolder" | Out-File $logFile
+
+LogToFile "Current folder $currentScriptFolder" $logFile
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 try
 {    
-    "Enabling Samba" | Out-File $logFile -Append
+    LogToFile "Enabling Samba" $logFile
     netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes 
 
     $sasDecoded = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($SAS))
 
-    "Server environment: $serverEnv" | Out-File $logFile -Append
-    "Server region: $serverRegion" | Out-File $logFile -Append
-    "Server role: $serverRole" | Out-File $logFile -Append
-    "SAS token: $sasDecoded" | Out-File $logFile -Append
+    LogToFile "Server environment: $serverEnv" $logFile
+    LogToFile "Server region: $serverRegion" $logFile
+    LogToFile "Server role: $serverRole" $logFile
+    LogToFile "SAS token: $sasDecoded" $logFile
     
     #------------------------------------------------------------------
     if (!(test-path C:\OSEL)) {mkdir C:\OSEL }
-    "save aprameters as config file c:\OSEL\config.json" | Out-File $logFile -Append
+    LogToFile "saveing aprameters as config file c:\OSEL\config.json" $logFile
     @{env=$serverEnv;region=$serverRegion;role=$serverRole;SAS=$SAS} | ConvertTo-Json | Out-File "c:\OSEL\config.json"
     #------------------------------------------------------------------
-    "download website" | Out-File $logFile -Append
+    LogToFile "downloading website" $logFile
     if (!(test-path C:\TEMP\website)) {mkdir C:\TEMP\website }
     $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/Website.zip" + $sasDecoded    
     (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\TEMP\Website.zip')    
-    "unzip website to C:\temp\website\" | Out-File $logFile -Append
+    LogToFile "unziping website to C:\temp\website\" $logFile
     Unzip "c:\TEMP\Website.zip" "C:\temp\website\"
     #------------------------------------------------------------------
-    "download index" | Out-File $logFile -Append
+    LogToFile "downloading index" $logFile
     if (!(test-path C:\TEMP\index)) {mkdir C:\TEMP\index }
     $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/index.zip" + $sasDecoded    
     (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\TEMP\index.zip')    
-    "unzip website to C:\temp\index\" | Out-File $logFile -Append
+    LogToFile "unziping index to C:\temp\index\" $logFile
     Unzip "c:\TEMP\index.zip" "C:\temp\index\"
     #------------------------------------------------------------------
-    "download OSEL" | Out-File $logFile -Append    
+    LogToFile "downloading OSEL" $logFile    
     $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/OSEL.ZIP" + $sasDecoded    
     (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\OSEL\OSEL.ZIP')    
-    "unzip OSEL" | Out-File $logFile -Append
+    LogToFile "unziping OSEL" $logFile
     Unzip "c:\OSEL\OSEL.zip" "C:\"    
-    "run OSEL init-server.ps1" | Out-File $logFile -Append    
+    LogToFile "runing OSEL init-server.ps1" $logFile    
     Set-Location c:\OSEL\StandAloneScripts\ServerSetup\
     Get-Process C:\OSEL\StandAloneScripts\ServerSetup\init-server.ps1     
-
+    LogToFile "OSEL init finished" $logFile
 }
 catch
 {
-	"An error ocurred: $_" | Out-File $logFile -Append
+	LogToFile "An error ocurred: $_" $logFile
 }
