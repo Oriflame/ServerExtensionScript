@@ -67,6 +67,26 @@ try
     LogToFile "unziping index to C:\temp\index\" $logFile
     Unzip "c:\TEMP\index.zip" "C:\temp\index\"
     #------------------------------------------------------------------
+    
+    LogToFile "installing WinServer features" $logFile
+    dism /online /get-featureinfo /featurename:NetFx4ServerFeatures
+    dism /online /enable-feature /all /featurename:IIS-ASPNET45 /NoRestart
+    dism /online /enable-feature /featurename:NetFx3ServerFeatures
+
+    $features = @("Web-ASP","Web-CGI","Web-ISAPI-Ext","Web-ISAPI-Filter",
+        "Web-Includes","Web-HTTP-Errors","Web-Common-HTTP",
+        "Web-Performance","Web-Basic-Auth","Web-Http-Tracing",
+        "Web-Stat-Compression","Web-Http-Logging","WAS",
+        "Web-Dyn-Compression","Web-Client-Auth","Web-IP-Security",
+        "Web-Url-Auth","Web-Http-Redirect","Web-Request-Monitor",
+        "Web-Net-Ext45","Web-Asp-Net45" )
+
+    foreach ($f in $features)
+    {
+        Get-WindowsFeature -Name $f | Where InstallState -ne Installed | Install-WindowsFeature	    
+    }
+    LogToFile "WinServer features installed" $logFile
+
     LogToFile "downloading OSEL" $logFile    
     $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/OSEL.ZIP" + $sasDecoded    
     (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\OSEL\OSEL.ZIP')    
