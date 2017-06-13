@@ -42,6 +42,7 @@ try
     netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes 
 
     $sasDecoded = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($SAS))
+    $serverEnv = $serverEnv.Replace("|", " ")
 
     LogToFile "Server environment: $serverEnv" $logFile
     LogToFile "Server region: $serverRegion" $logFile
