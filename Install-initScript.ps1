@@ -5,6 +5,9 @@ param
 	[string]$serverEnv,
 
     [Parameter(Mandatory=$true)]
+	[string]$octopusEnv,
+
+    [Parameter(Mandatory=$true)]
 	[string]$serverRegion,
 
     [Parameter(Mandatory=$true)]
@@ -43,16 +46,19 @@ try
 
     $sasDecoded = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($SAS))
     $serverEnv = $serverEnv.Replace("_", " ")
+    $octopusEnv = $octopusEnv.Replace("_", " ")
+    
 
     LogToFile "Server environment: $serverEnv" $logFile
+    LogToFile "Octopus environment: $octopusEnv" $logFile
     LogToFile "Server region: $serverRegion" $logFile
     LogToFile "Server role: $serverRole" $logFile
     LogToFile "SAS token: $sasDecoded" $logFile
-    
+        
     #------------------------------------------------------------------
     if (!(test-path C:\OSEL)) {mkdir C:\OSEL }
-    LogToFile "saveing aprameters as config file c:\OSEL\config.json" $logFile
-    @{env=$serverEnv;region=$serverRegion;role=$serverRole;SAS=$SAS} | ConvertTo-Json | Out-File "c:\OSEL\config.json"
+    LogToFile "saving parameters as config file c:\OSEL\config.json" $logFile
+    @{env=$serverEnv;octopusEnv=$octopusEnv;region=$serverRegion;role=$serverRole;SAS=$SAS} | ConvertTo-Json | Out-File "c:\OSEL\config.json"
     #------------------------------------------------------------------
     LogToFile "downloading website" $logFile
     if (!(test-path C:\TEMP\website)) {mkdir C:\TEMP\website }
