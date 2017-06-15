@@ -6,7 +6,6 @@
         "existingVnetRG": { "type": "string" },
         "existingSubnetName": { "type": "string" },
         "dnsLabelPrefix": { "type": "string" },
-        "dnsLabelPrefixCnt": { "type": "string" },
         "vmSize": { "type": "string" },
         "vmCount": { "type": "int" },
         "userDomain": { "type": "string" },
