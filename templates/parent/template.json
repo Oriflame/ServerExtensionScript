@@ -139,7 +139,7 @@
                 "name": "nestedRoleDeploymentCopySet",
                 "count": "[length(array(parameters('dnsLabelPrefix')))]",
                 "mode": "serial",
-                "batchSize": 4
+                "batchSize": "[length(array(parameters('dnsLabelPrefix')))]"
             },
             "properties": {
                 "mode": "Incremental",

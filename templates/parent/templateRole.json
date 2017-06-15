@@ -35,7 +35,7 @@
                 "name": "nestedVMDeploymentCopySet",
                 "count": "[parameters('vmCount')]",
                 "mode": "serial",
-                "batchSize": 4
+                "batchSize": "[parameters('vmCount')]"
             },
             "properties": {
                 "mode": "Incremental",
