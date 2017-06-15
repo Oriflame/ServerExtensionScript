@@ -8,6 +8,7 @@
         "dnsLabelPrefix": { "type": "string" },
         "dnsLabelPrefixCnt": { "type": "string" },
         "vmSize": { "type": "string" },
+        "vmCount": { "type": "int" },
         "userDomain": { "type": "string" },
         "domainToJoin": { "type": "string" },
         "domainUsername": { "type": "string" },
