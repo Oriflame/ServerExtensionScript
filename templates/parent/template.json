@@ -128,7 +128,7 @@
         }
     },
     "variables": {
-        "templatelink": "https://raw.githubusercontent.com/PiDiBi/ServerExtensionScript/initscript-dev/templates/joindomain/templateRole.json"
+        "templatelink": "https://raw.githubusercontent.com/PiDiBi/ServerExtensionScript/initscript-dev/templates/parent/templateRole.json"
     },
     "resources": [
         {
@@ -137,7 +137,7 @@
             "type": "Microsoft.Resources/deployments",
             "copy": {
                 "name": "myCopySet",
-                "count": "[length(array(parameters('dnsLabelPrefix')]",
+                "count": "[length(array(parameters('dnsLabelPrefix')))]",
                 "mode": "serial",
                 "batchSize": 4
             },
@@ -204,6 +204,9 @@
                     },
                     "vmCount":{
                         "value": "[array(parameters('dnsLabelPrefixCnt'))[copyIndex()]]"
+                    },
+                    "SAS":{
+                        "value": "[parameters('SAS')]"
                     }
                 }
             }

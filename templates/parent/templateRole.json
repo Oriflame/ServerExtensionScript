@@ -97,6 +97,9 @@
                     },
                     "initScript": {
                         "value": "[parameters('initScript')]"
+                    },
+                    "SAS":{
+                        "value": "[parameters('SAS')]"
                     }
                 }
             }
