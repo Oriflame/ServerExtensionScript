@@ -101,8 +101,8 @@ try
     LogToFile "unziping OSEL" $logFile
     Unzip "c:\OSEL\OSEL.zip" "C:\"
     LogToFile "runing OSEL init-server.ps1" $logFile
-    Set-Location c:\OSEL\StandAloneScripts\ServerSetup\ -step new-server
-    & .\init-server.ps1
+    Set-Location c:\OSEL\StandAloneScripts\ServerSetup\
+    & .\init-server.ps1 -step new-server
     LogToFile "OSEL init finished" $logFile
 }
 catch
