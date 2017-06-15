@@ -33,7 +33,9 @@
             "type": "Microsoft.Resources/deployments",
             "copy": {
                 "name": "nestedVMDeploymentCopySet",
-                "count": "[parameters('vmCount')]"
+                "count": "[parameters('vmCount')]",
+                "mode": "serial",
+                "batchSize": 4
             },
             "properties": {
                 "mode": "Incremental",
