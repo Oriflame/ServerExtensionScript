@@ -47,6 +47,7 @@ try
     $sasDecoded = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($SAS))
     $serverEnv = $serverEnv.Replace("_", " ")
     $octopusEnv = $octopusEnv.Replace("_", " ")
+    $serverRole = $serverRole.Replace("_NA_", "")
 
 
     LogToFile "Server environment: $serverEnv" $logFile
