@@ -29,10 +29,10 @@
     "resources": [
         {
             "apiVersion": "2015-01-01",
-            "name": "[concat('nestedVMDeployment',padLeft(copyIndex(), 2, '0'))]",
+            "name": "[concat('nestedVMDeployment',padLeft(copyIndex()+1, 2, '0'))]",
             "type": "Microsoft.Resources/deployments",
             "copy": {
-                "name": "myCopySet",
+                "name": "nestedVMDeploymentCopySet",
                 "count": "[parameters('vmCount')]",
                 "mode": "serial",
                 "batchSize": 2
@@ -54,7 +54,7 @@
                         "value": "[parameters('existingSubnetName')]"
                     },
                     "dnsLabelPrefix": {
-                        "value": "[concat(parameters('dnsLabelPrefix'), padLeft(copyIndex(), 2, '0'))]"
+                        "value": "[concat(parameters('dnsLabelPrefix'), padLeft(copyIndex()+1, 2, '0'))]"
                     },
                     "vmSize": {
                         "value": "[parameters('vmSize')]"

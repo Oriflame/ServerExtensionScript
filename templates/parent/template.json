@@ -133,10 +133,10 @@
     "resources": [
         {
             "apiVersion": "2015-01-01",
-            "name": "[concat('nestedRoleDeployment', padLeft(copyIndex(), 2, '0'))]",
+            "name": "[concat('nestedRoleDeployment', padLeft(copyIndex()+1, 2, '0'))]",
             "type": "Microsoft.Resources/deployments",
             "copy": {
-                "name": "myCopySet",
+                "name": "nestedRoleDeploymentCopySet",
                 "count": "[length(array(parameters('dnsLabelPrefix')))]",
                 "mode": "serial",
                 "batchSize": 4
