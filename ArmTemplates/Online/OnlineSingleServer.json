@@ -125,10 +125,16 @@
       "metadata": {
         "description": "sas token passed to init script"
       }
+    },
+    "DiagnosticsStorageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "Storage account name used for monitoring"
+      }
     }
   },
   "variables": {
-    "storageAccountName": "[concat(uniquestring(resourceGroup().id, deployment().name))]",
+    "storageAccountName": "[parameters('DiagnosticsStorageAccountName')]",
     "diagnosticsStorageAccountId": "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
     "diagnosticsExtensionName": "IaaSDiagnostics",
     "apiVersion": "2015-06-15",
