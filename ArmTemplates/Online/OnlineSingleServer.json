@@ -20,10 +20,10 @@
         "description": "Existing subnet that contains the domain controller"
       }
     },
-    "dnsLabelPrefix": {
+    "vmName": {
       "type": "string",
       "metadata": {
-        "description": "Unique public DNS prefix for the deployment. The fqdn will look something like '<dnsname>.westus.cloudapp.azure.com'. Up to 62 chars, digits or dashes, lowercase, should start with a letter: must conform to '^[a-z][a-z0-9-]{1,61}[a-z0-9]$'."
+        "description": "Name of the VM"
       }
     },
     "vmSize": {
@@ -138,7 +138,7 @@
     "diagnosticsStorageAccountId": "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
     "diagnosticsExtensionName": "IaaSDiagnostics",
     "apiVersion": "2015-06-15",
-    "nicName": "[concat(parameters('dnsLabelPrefix'),'Nic')]",
+    "nicName": "[concat(parameters('vmName'),'Nic')]",
     "vnetID": "[resourceId(parameters('existingVnetRG'), 'Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]",
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
     "UriFileNamePieces": "[split(parameters('initScript'), '/')]",
@@ -180,7 +180,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('dnsLabelPrefix')]",
+      "name": "[parameters('vmName')]",
       "apiVersion": "2016-04-30-preview",
       "location": "[resourceGroup().location]",
       "properties": {
@@ -188,7 +188,7 @@
           "vmSize": "[parameters('vmSize')]"
         },
         "osProfile": {
-          "computerName": "[parameters('dnsLabelPrefix')]",
+          "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('vmAdminUsername')]",
           "adminPassword": "[parameters('vmAdminPassword')]"
         },
@@ -226,12 +226,12 @@
       ]
     },
     {
-      "name": "[concat(parameters('dnsLabelPrefix'),'/', variables('diagnosticsExtensionName'))]",
+      "name": "[concat(parameters('vmName'),'/', variables('diagnosticsExtensionName'))]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2016-04-30-preview",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('dnsLabelPrefix'))]"
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
       ],
       "properties": {
         "publisher": "Microsoft.Azure.Diagnostics",
@@ -244,7 +244,7 @@
             "DiagnosticMonitorConfiguration": {
               "overallQuotaInMB": 5120,
               "Metrics": {
-                "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/', 'Microsoft.Compute/virtualMachines/', parameters('dnsLabelPrefix'))]",
+                "resourceId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/', 'Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
                 "MetricAggregation": [
                   {
                     "scheduledTransferPeriod": "PT1H"
@@ -468,7 +468,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('dnsLabelPrefix'),'/joindomain')]",
+      "name": "[concat(parameters('vmName'),'/joindomain')]",
       "apiVersion": "[variables('apiVersion')]",
       "location": "[resourceGroup().location]",
       "properties": {
@@ -488,12 +488,12 @@
         }
       },
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('dnsLabelPrefix'))]",
-        "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('dnsLabelPrefix')),'/extensions/', variables('diagnosticsExtensionName'))]"
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
+        "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/', variables('diagnosticsExtensionName'))]"
       ]
     },
     {
-      "name": "[concat(parameters('dnsLabelPrefix'),'/CustomScriptExtension')]",
+      "name": "[concat(parameters('vmName'),'/CustomScriptExtension')]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[resourceGroup().location]",
       "apiVersion": "2015-06-15",
@@ -510,7 +510,7 @@
         }
       },
       "dependsOn": [
-        "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('dnsLabelPrefix')),'/extensions/joindomain')]"
+        "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/joindomain')]"
       ]
     }
   ],
