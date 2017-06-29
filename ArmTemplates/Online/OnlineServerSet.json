@@ -1,0 +1,108 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "existingVNETName": { "type": "string" },
+        "existingVnetRG": { "type": "string" },
+        "existingSubnetName": { "type": "string" },
+        "dnsLabelPrefix": { "type": "string" },
+        "vmSize": { "type": "string" },
+        "vmCount": { "type": "int" },
+        "userDomain": { "type": "string" },
+        "domainToJoin": { "type": "string" },
+        "domainUsername": { "type": "string" },
+        "domainPassword": { "type": "securestring" },
+        "ouPath": { "type": "string" },
+        "domainJoinOptions": { "type": "int" },
+        "vmAdminUsername": { "type": "string" },
+        "vmAdminPassword": { "type": "securestring" },
+        "initScript": { "type": "string" },
+        "env": { "type": "string" },
+        "octopusEnv": { "type": "string" },
+        "region": { "type": "string" },
+        "role": { "type": "string" },
+        "SAS": { "type": "string" }
+    },
+  "variables": {
+    "templatelink": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
+  },
+    "resources": [
+        {
+            "apiVersion": "2015-01-01",
+            "name": "[concat(deployment().name, '-', 'vmDep', '-', padLeft(add(copyIndex(),1), 2, '0'))]",
+            "type": "Microsoft.Resources/deployments",
+            "copy": {
+                "name": "nestedVMDeploymentCopySet",
+                "count": "[parameters('vmCount')]",
+                "mode": "serial",
+                "batchSize": "[int(parameters('vmCount'))]"
+            },
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('templatelink')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "existingVNETName": {
+                        "value": "[parameters('existingVNETName')]"
+                    },
+                    "existingVnetRG": {
+                        "value": "[parameters('existingVnetRG')]"
+                    },
+                    "existingSubnetName": {
+                        "value": "[parameters('existingSubnetName')]"
+                    },
+                    "dnsLabelPrefix": {
+                        "value": "[concat(parameters('dnsLabelPrefix'), padLeft(add(copyIndex(),1), 2, '0'))]"
+                    },
+                    "vmSize": {
+                        "value": "[parameters('vmSize')]"
+                    },
+                    "userDomain": {
+                        "value": "[parameters('userDomain')]"
+                    },
+                    "domainToJoin": {
+                        "value": "[parameters('domainToJoin')]"
+                    },
+                    "domainUsername": {
+                        "value": "[parameters('domainUsername')]"
+                    },
+                    "domainPassword": {
+                        "value": "[parameters('domainPassword')]"
+                    },
+                    "ouPath": {
+                        "value": "[parameters('ouPath')]"
+                    },
+                    "domainJoinOptions": {
+                        "value": "[parameters('domainJoinOptions')]"
+                    },
+                    "vmAdminUsername": {
+                        "value": "[parameters('vmAdminUsername')]"
+                    },
+                    "vmAdminPassword": {
+                        "value": "[parameters('vmAdminPassword')]"
+                    },
+                    "env": {
+                        "value": "[parameters('env')]"
+                    },
+                    "octopusEnv": {
+                        "value": "[parameters('octopusEnv')]"
+                    },
+                    "region": {
+                        "value": "[parameters('region')]"
+                    },
+                    "role": {
+                        "value": "[parameters('role')]"
+                    },
+                    "initScript": {
+                        "value": "[parameters('initScript')]"
+                    },
+                    "SAS":{
+                        "value": "[parameters('SAS')]"
+                    }
+                }
+            }
+        }
+    ]
+}
