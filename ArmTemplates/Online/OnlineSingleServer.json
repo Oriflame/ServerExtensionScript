@@ -154,10 +154,14 @@
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccountName')]",
       "apiVersion": "2016-01-01",
+      "sku": {
+        "name": "Standard_LRS",
+        "tier": "Standard"
+      },
+      "kind": "Storage",
+      "tags": {},
       "location": "[resourceGroup().location]",
-      "properties": {
-        "accountType": "Standard_LRS"
-      }
+      "properties": {}
     },
     {
       "type": "Microsoft.Network/networkInterfaces",
