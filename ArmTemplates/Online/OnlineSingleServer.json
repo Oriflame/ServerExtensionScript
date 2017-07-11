@@ -131,7 +131,23 @@
       "metadata": {
         "description": "Storage account name used for monitoring"
       }
-    }
+    },
+    "RedisCache": {
+      "type": "string",
+      "metadata": {
+        "description": "Redic Cache connection string passed to init script"
+      }
+    },
+//    "ServiceBus": {
+//      "type": "string",
+//      "metadata": {
+//        "description": "Service Bus connection string passed to init script"
+//      },
+    "BLOBStorage": {
+      "type": "string",
+      "metadata": {
+        "description": "Blob Storage connection string passed to init script"
+      }
   },
   "variables": {
     "storageAccountName": "[parameters('DiagnosticsStorageAccountName')]",
@@ -510,7 +526,7 @@
           "fileUris": "[split(parameters('initScript'), ' ')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), ' ', parameters('env'), ' ', parameters('octopusEnv'), ' ', parameters('region'), ' ', parameters('role'), ' ', base64(parameters('SAS')))]"
+          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), ' -serverEnv ', parameters('env'), ' -octopusEnv ', parameters('octopusEnv'), ' -serverRegion ', parameters('region'), ' -serverRole ', parameters('role'), ' -SAS ', base64(parameters('SAS')), ' -redisCache ', base64(parameters('RedisCache')), ' -blobStorage ', base64(parameters('BLOBStorage')))]"
         }
       },
       "dependsOn": [
@@ -519,14 +535,25 @@
     }
   ],
   "outputs": {
-    "firstFileName": {
+    "SetupScript": {
       "type": "string",
       "value": "[variables('firstFileName')]"
     },
-    "uriComponentToString": {
-      "type": "string",
-      "value": "[base64(parameters('SAS'))]"
-    }
-
+    "ConnectionStrings": {
+      "type": "object",
+      "value": { "SasToken"    : "[base64(parameters('SAS'))]"
+               , "RedisCache"  : "[base64(parameters('RedisCache'))]"
+            // , "ServiceBus"  : "[base64(parameters('ServiceBus'))]"
+               , "BLOBStorage" : "[base64(parameters('BLOBStorage'))]"
+               }
+    },
+    "DNSPrefix": {
+	"type" : "string",
+	"value": "[parameters('dnsLabelPrefix')]"
+    },
+    "PrivateIPAddress" : {
+       "type" : "string",
+       "value": "[reference(variables('nicName')).ipConfigurations[0].properties.privateIPAddress]"
+    } 
   }
 }

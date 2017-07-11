@@ -23,7 +23,10 @@
     "region": { "type": "string" },
     "role": { "type": "string" },
     "SAS": { "type": "string" },
-    "DiagnosticsStorageAccountName": { "type": "string" }
+    "DiagnosticsStorageAccountName": { "type": "string" },
+    "RedisCache" : { "type": "string" },
+//    "ServiceBus" : { "type": "string" },
+    "BlobStorage" : { "type": "string" }
   },
   "variables": {
     "templatelink": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
@@ -108,7 +111,10 @@
           },
           "DiagnosticsStorageAccountName": {
             "value": "[parameters('DiagnosticsStorageAccountName')]"
-          }
+          },
+          "RedisCache": { "value": "[parameters('RedisCache')]" }, 
+          // "ServiceBus": { "value": "[parameters('ServiceBus')]" },
+          "BlobStorage": { "value": "[parameters('BlobStorage')]" }
         }
       }
     }
