@@ -1,111 +1,146 @@
 [CmdletBinding()]
 param
 (
-	[Parameter(Mandatory=$true)]
-	[string]$serverEnv,
-
-    [Parameter(Mandatory=$true)]
-	[string]$octopusEnv,
-
-    [Parameter(Mandatory=$true)]
-	[string]$serverRegion,
-
-    [Parameter(Mandatory=$true)]
-	[string]$serverRole,
-
-	[Parameter(Mandatory=$true)]
-	[string]$SAS
+    [Parameter(Mandatory=$true)] [string]$serverEnv,
+    [Parameter(Mandatory=$true)] [string]$octopusEnv,
+    [Parameter(Mandatory=$true)] [string]$serverRegion,
+    [Parameter(Mandatory=$true)] [string]$serverRole,
+    [Parameter(Mandatory=$true)] [string]$SAS,
+    [Parameter(Mandatory=$true)] [string]$redisCache,
+#    [Parameter(Mandatory=$true)] [string]$serviceBus,
+    [Parameter(Mandatory=$true)] [string]$blobStorage
 )
 
-function Unzip
-{
-    param([string]$zipfile, [string]$outpath)
+#region CONSTANTS
+    $logDir = "C:\logs"
+    $oselDir = "c:\OSEL"
+    $rootStgContainer = "https://oriflamestorage.blob.core.windows.net/onlineassets"
+    $oselRes = "osel.zip"
+    $cfgJson = "config.json"
+#endregion
 
-    [System.IO.Compression.ZipFile]::ExtractToDirectory($zipfile, $outpath)
-}
-function LogToFile
+
+#logging preparation
+    if (!(test-path $logDir)) { mkdir $logDirs | Out-Null }
+
+    $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Definition)
+    $currentScriptFolder = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
+    $logFile = "$logDir\$scriptName.txt"
+
+function LogToFile( [string] $text )
 {
-    param([string]$text, [string]$logFile)
     $date = Get-Date -Format s
-    "$date : $text" | Out-File $logFile -Append
+    "$($date): $text" | Out-File $logFile -Append
 }
 
-if (!(test-path C:\logs)) {mkdir C:\logs }
+function InstallFeatures()
+{
+	LogToFile "Prerequisite: IIS-ASPNET45";
+	dism /online /enable-feature /all /featurename:IIS-ASPNET45 /NoRestart
 
-$scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Definition)
-$currentScriptFolder = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
-$logFile = "c:\logs\$scriptName.txt"
+	LogToFile "Prerequisite: NetFx4ServerFeatures";
+	dism /online /get-featureinfo /featurename:NetFx4ServerFeatures
+	LogToFile "Prerequisite: NetFx3ServerFeatures";
+	dism /online /enable-feature /featurename:NetFx3ServerFeatures
+	LogToFile "Prerequisite: NetFx3";
+	dism /online /enable-feature /featurename:NetFx3
 
-LogToFile "Current folder $currentScriptFolder" $logFile
-Add-Type -AssemblyName System.IO.Compression.FileSystem
+	$features = @(	"Web-ASP",
+					"Web-CGI",
+					"Web-ISAPI-Ext",
+					"Web-ISAPI-Filter",
+					"Web-Includes",
+					"Web-HTTP-Errors",
+					"Web-Common-HTTP",
+					"Web-Performance",
+					"Web-Basic-Auth",
+					"Web-Http-Tracing",
+					"Web-Stat-Compression",
+					"Web-Http-Logging",
+					"WAS",
+					"Web-Dyn-Compression",
+					"Web-Client-Auth",
+					"Web-IP-Security",
+					"Web-Url-Auth",
+					"Web-Http-Redirect",
+					"Web-Request-Monitor",
+					"Web-Net-Ext45",
+					"Web-Asp-Net45"
+				)
+
+	foreach( $f in $features )
+	{
+		LogToFile "Web Feature: $f ... ";
+		 Get-WindowsFeature -Name $f | Where-Object InstallState -ne Installed | Install-WindowsFeature		
+	}
+}
+
+
+
+#start
+    LogToFile "Current folder $currentScriptFolder" 
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 try
 {
-    LogToFile "Enabling Samba" $logFile
-    netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
+#enable samba    
+    # LogToFile "Enabling Samba" 
+    # netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
 
+    $redisDecoded = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($redisCache))
+#    $svcbusDecoded = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($serviceBus))
+    $blobstgDecoded = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($blobStorage))
     $sasDecoded = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($SAS))
     $serverEnv = $serverEnv.Replace("_", " ")
     $octopusEnv = $octopusEnv.Replace("_", " ")
     $serverRole = $serverRole.Replace("_NA_", "")
 
 
-    LogToFile "Server environment: $serverEnv" $logFile
-    LogToFile "Octopus environment: $octopusEnv" $logFile
-    LogToFile "Server region: $serverRegion" $logFile
-    LogToFile "Server role: $serverRole" $logFile
-    LogToFile "SAS token: $sasDecoded" $logFile
+    LogToFile "Server environment: $serverEnv" 
+    LogToFile "Octopus environment: $octopusEnv" 
+    LogToFile "Server region: $serverRegion" 
+    LogToFile "Server role: $serverRole" 
+    LogToFile "SAS token: $sasDecoded" 
+    LogToFile "Redis Cache connection string: $redisDecoded" 
+#    LogToFile "Service Bus connection string: $svcbusDecoded" 
+    LogToFile "BLOB Storage connection string: $blobstgDecoded" 
 
-    #------------------------------------------------------------------
-    if (!(test-path C:\OSEL)) {mkdir C:\OSEL }
-    LogToFile "saving parameters as config file c:\OSEL\config.json" $logFile
-    @{env=$serverEnv;octopusEnv=$octopusEnv;region=$serverRegion;role=$serverRole;SAS=$SAS} | ConvertTo-Json | Out-File "c:\OSEL\config.json"
-    #------------------------------------------------------------------
-    LogToFile "downloading website" $logFile
-    if (!(test-path C:\TEMP\website)) {mkdir C:\TEMP\website }
-    $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/Website.zip" + $sasDecoded
-    (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\TEMP\Website.zip')
-    LogToFile "unziping website to C:\temp\website\" $logFile
-    Unzip "c:\TEMP\Website.zip" "C:\temp\website\"
-    #------------------------------------------------------------------
-    LogToFile "downloading index" $logFile
-    if (!(test-path C:\TEMP\index)) {mkdir C:\TEMP\index }
-    $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/index.zip" + $sasDecoded
-    (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\TEMP\index.zip')
-    LogToFile "unziping index to C:\temp\index\" $logFile
-    Unzip "c:\TEMP\index.zip" "C:\temp\index\"
-    #------------------------------------------------------------------
+#deploy mandatory features
+    #InstallFeatures
 
-    LogToFile "installing WinServer features" $logFile
-    dism /online /get-featureinfo /featurename:NetFx4ServerFeatures
-    dism /online /enable-feature /all /featurename:IIS-ASPNET45 /NoRestart
-    dism /online /enable-feature /featurename:NetFx3ServerFeatures
+#persist parameters in the Osel Dir
+    if (!(test-path $oselDir)) {mkdir $oselDir }
+    LogToFile "saving parameters as config file $oselDir\$cfgJson" 
+    @{ env=$serverEnv;
+       octopusEnv=$octopusEnv;
+       region=$serverRegion;
+       role=$serverRole;
+       SAS=$SAS;
+       RedisCache=$redisDecoded;
+#       ServiceBus=$svcbusDecoded;
+       BLOBStorage=$blobstgDecoded     
+        } | 
+        ConvertTo-Json | 
+        Out-File "$oselDir\$cfgJson"
 
-    $features = @("Web-ASP","Web-CGI","Web-ISAPI-Ext","Web-ISAPI-Filter",
-        "Web-Includes","Web-HTTP-Errors","Web-Common-HTTP",
-        "Web-Performance","Web-Basic-Auth","Web-Http-Tracing",
-        "Web-Stat-Compression","Web-Http-Logging","WAS",
-        "Web-Dyn-Compression","Web-Client-Auth","Web-IP-Security",
-        "Web-Url-Auth","Web-Http-Redirect","Web-Request-Monitor",
-        "Web-Net-Ext45","Web-Asp-Net45" )
+#download resource storage
+    $url = "$rootStgContainer/$serverEnv/$oselRes"
+    LogToFile "downloading OSEL: $url" 
+    (New-Object System.Net.WebClient).DownloadFile("$url$sasDecoded", "$oselDir\$oselRes")
 
-    foreach ($f in $features)
-    {
-        Get-WindowsFeature -Name $f | Where InstallState -ne Installed | Install-WindowsFeature
-    }
-    LogToFile "WinServer features installed" $logFile
+#unzip
+    LogToFile "unziping OSEL to [$oselDir]"   
+    [System.IO.Compression.ZipFile]::ExtractToDirectory("$oselDir\$oselRes", $oselDir)
 
-    LogToFile "downloading OSEL" $logFile
-    $installFileUrl = "https://oriflamestorage.blob.core.windows.net/onlineassets/$serverEnv/OSEL.ZIP" + $sasDecoded
-    (New-Object System.Net.WebClient).DownloadFile($installFileUrl, 'c:\OSEL\OSEL.ZIP')
-    LogToFile "unziping OSEL" $logFile
-    Unzip "c:\OSEL\OSEL.zip" "C:\"
-    LogToFile "runing OSEL init-server.ps1" $logFile
-    Set-Location c:\OSEL\StandAloneScripts\ServerSetup\
-    & .\init-server.ps1 -step new-server
-    LogToFile "OSEL init finished" $logFile
+#exec init-server    
+    LogToFile "starting OSEL => .\init-server.ps1 -step new-server" 
+    Set-Location "$oselDir\StandAloneScripts\ServerSetup\"
+    .\init-server.ps1 -step new-server >> $logFile
+
+#done    
+    LogToFile "OSEL init-server finished" 
 }
 catch
 {
-	LogToFile "An error ocurred: $_" $logFile
+	LogToFile "An error ocurred: $_" 
 }
