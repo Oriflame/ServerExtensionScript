@@ -85,7 +85,7 @@
       }
     },
     "vmAdminPassword": {
-      "type": "Securestring",
+      "type": "securestring",
       "metadata": {
         "description": "The password for the administrator account of the new VM and the domain"
       }
@@ -148,6 +148,7 @@
       "metadata": {
         "description": "Blob Storage connection string passed to init script"
       }
+    }
   },
   "variables": {
     "storageAccountName": "[parameters('DiagnosticsStorageAccountName')]",
@@ -236,7 +237,7 @@
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
-            "enabled": "true",
+            "enabled": true,
             "storageUri": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName')), '2015-06-15').primaryEndpoints.blob]"
           }
         }
