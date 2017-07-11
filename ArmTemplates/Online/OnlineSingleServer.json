@@ -134,17 +134,20 @@
     },
     "RedisCache": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "Redic Cache connection string passed to init script"
       }
     },
 //    "ServiceBus": {
 //      "type": "string",
+//      "defaultValue": "",
 //      "metadata": {
 //        "description": "Service Bus connection string passed to init script"
 //      },
     "BLOBStorage": {
       "type": "string",
+      "defaultValue": "",
       "metadata": {
         "description": "Blob Storage connection string passed to init script"
       }
