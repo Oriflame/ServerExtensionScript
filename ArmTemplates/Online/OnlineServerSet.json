@@ -24,10 +24,10 @@
     "region":             { "type": "string" },
     "role":               { "type": "string" },
     "SAS":                { "type": "string" },
-    "DiagnosticsStorageAccountName": { "type": "string" },
     "RedisCache" :        { "type": "string" },
 //    "ServiceBus" :      { "type": "string" },
-    "BlobStorage" :       { "type": "string" }
+    "BlobStorage" :       { "type": "string" },
+    "DiagnosticsStorageAccountName": { "type": "string" }
   },
   "variables": {
     "templatelink": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
@@ -35,12 +35,12 @@
   "resources": [
     {
       "apiVersion": "2015-01-01",
-      "name": "[concat(deployment().name, '-', 'vmDep', '-', padLeft(copyIndex(parameters('idFirst')), 2, '0'))]",
+      "name": "[concat(deployment().name, '-No-', padLeft(copyIndex(parameters('idFirst')), 2, '0'))]",
       "type": "Microsoft.Resources/deployments",
       "copy": {
         "name": "nestedVMDeploymentCopySet",
         // "mode": "serial",
-        // "batchSize": "[parameters('count')]",     // ... serial only
+        // "batchSize": "[parameters('count')]",     // ... parameter valid for serial only
         "count": "[parameters('count')]"
       },
       "properties": {
@@ -50,72 +50,30 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "existingVNETName": {
-            "value": "[parameters('existingVNETName')]"
-          },
-          "existingVnetRG": {
-            "value": "[parameters('existingVnetRG')]"
-          },
-          "existingSubnetName": {
-            "value": "[parameters('existingSubnetName')]"
-          },
-          "vmName": {
-            "value": "[concat(parameters('vmName'), padLeft(copyIndex(parameters('idFirst')), 2, '0'))]"
-          },
-          "vmSize": {
-            "value": "[parameters('vmSize')]"
-          },
-          "vmOSStorageType": {
-            "value": "[parameters('vmOSStorageType')]"
-          },
-          "userDomain": {
-            "value": "[parameters('userDomain')]"
-          },
-          "domainToJoin": {
-            "value": "[parameters('domainToJoin')]"
-          },
-          "domainUsername": {
-            "value": "[parameters('domainUsername')]"
-          },
-          "domainPassword": {
-            "value": "[parameters('domainPassword')]"
-          },
-          "ouPath": {
-            "value": "[parameters('ouPath')]"
-          },
-          "domainJoinOptions": {
-            "value": "[parameters('domainJoinOptions')]"
-          },
-          "vmAdminUsername": {
-            "value": "[parameters('vmAdminUsername')]"
-          },
-          "vmAdminPassword": {
-            "value": "[parameters('vmAdminPassword')]"
-          },
-          "env": {
-            "value": "[parameters('env')]"
-          },
-          "octopusEnv": {
-            "value": "[parameters('octopusEnv')]"
-          },
-          "region": {
-            "value": "[parameters('region')]"
-          },
-          "role": {
-            "value": "[parameters('role')]"
-          },
-          "initScript": {
-            "value": "[parameters('initScript')]"
-          },
-          "SAS": {
-            "value": "[parameters('SAS')]"
-          },
-          "DiagnosticsStorageAccountName": {
-            "value": "[parameters('DiagnosticsStorageAccountName')]"
-          },
-          "RedisCache": { "value": "[parameters('RedisCache')]" }, 
-          // "ServiceBus": { "value": "[parameters('ServiceBus')]" },
-          "BlobStorage": { "value": "[parameters('BlobStorage')]" }
+          "existingVNETName": 	{ "value": "[parameters('existingVNETName')]" },
+          "existingVnetRG": 	{ "value": "[parameters('existingVnetRG')]" },
+          "existingSubnetName": { "value": "[parameters('existingSubnetName')]" },
+          "vmName": 		{ "value": "[concat(parameters('vmName'), padLeft(copyIndex(parameters('idFirst')), 2, '0'))]"  },
+          "vmSize": 		{ "value": "[parameters('vmSize')]" },
+          "vmOSStorageType": 	{ "value": "[parameters('vmOSStorageType')]" },
+          "userDomain": 	{ "value": "[parameters('userDomain')]" },
+          "domainToJoin": 	{ "value": "[parameters('domainToJoin')]" },
+          "domainUsername": 	{ "value": "[parameters('domainUsername')]" },
+          "domainPassword": 	{ "value": "[parameters('domainPassword')]" },
+          "ouPath": 		{ "value": "[parameters('ouPath')]" },
+          "domainJoinOptions": 	{ "value": "[parameters('domainJoinOptions')]" },
+          "vmAdminUsername": 	{ "value": "[parameters('vmAdminUsername')]" },
+          "vmAdminPassword": 	{ "value": "[parameters('vmAdminPassword')]" },
+          "env": 		{ "value": "[parameters('env')]" },
+          "octopusEnv": 	{ "value": "[parameters('octopusEnv')]" },
+          "region": 		{ "value": "[parameters('region')]" },
+          "role": 		{ "value": "[parameters('role')]" },
+          "initScript": 	{ "value": "[parameters('initScript')]" },
+          "SAS": 		{ "value": "[parameters('SAS')]" },
+          "RedisCache": 	{ "value": "[parameters('RedisCache')]" }, 
+          // "ServiceBus": 	{ "value": "[parameters('ServiceBus')]" },
+          "BlobStorage": 	{ "value": "[parameters('BlobStorage')]" },
+          "DiagnosticsStorageAccountName": { "value": "[parameters('DiagnosticsStorageAccountName')]"}
         }
       }
     }
