@@ -8,7 +8,8 @@
     "vmName": { "type": "string" },
     "vmSize": { "type": "string" },
     "vmOSStorageType": { "type": "string" },
-    "vmCount": { "type": "int" },
+    "idFirst": { "type": "int" },
+    "idLast":  { "type": "int" },
     "userDomain": { "type": "string" },
     "domainToJoin": { "type": "string" },
     "domainUsername": { "type": "string" },
@@ -30,17 +31,18 @@
   },
   "variables": {
     "templatelink": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
+    "count": "[sub(sub(parameters('idLast'), parameters('idFirst')), 1)]"
   },
   "resources": [
     {
       "apiVersion": "2015-01-01",
-      "name": "[concat(deployment().name, '-', 'vmDep', '-', padLeft(add(copyIndex(),1), 2, '0'))]",
+      "name": "[concat(deployment().name, '-', 'vmDep', '-', padLeft(add(copyIndex(),parameters('idFirst')), 2, '0'))]",
       "type": "Microsoft.Resources/deployments",
       "copy": {
         "name": "nestedVMDeploymentCopySet",
-        "count": "[parameters('vmCount')]",
+        "count": "[variables('count')]",
         "mode": "serial",
-        "batchSize": "[int(parameters('vmCount'))]"
+        "batchSize": "[variables('count'))]"
       },
       "properties": {
         "mode": "Incremental",
@@ -59,7 +61,7 @@
             "value": "[parameters('existingSubnetName')]"
           },
           "vmName": {
-            "value": "[concat(parameters('vmName'), padLeft(add(copyIndex(),1), 2, '0'))]"
+            "value": "[concat(parameters('vmName'), padLeft(add(copyIndex(),parameters('idFirst')), 2, '0'))]"
           },
           "vmSize": {
             "value": "[parameters('vmSize')]"
