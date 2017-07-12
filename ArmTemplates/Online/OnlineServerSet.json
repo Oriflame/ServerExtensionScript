@@ -30,7 +30,7 @@
     "BlobStorage" : { "type": "string" }
   },
   "variables": {
-    "templatelink": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
+    "templatelink": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json",
     "count": "[sub(sub(parameters('idLast'), parameters('idFirst')), 1)]"
   },
   "resources": [
