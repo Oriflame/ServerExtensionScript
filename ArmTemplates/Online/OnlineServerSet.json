@@ -31,7 +31,7 @@
   },
   "variables": {
     "templatelink": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json",
-    "count": "[int(add( sub(parameters('idLast'),parameters('idFirst')), 1))]"
+    "count": 1 //"[int(add( sub(parameters('idLast'),parameters('idFirst')), 1))]"
   },
   "resources": [
     {
