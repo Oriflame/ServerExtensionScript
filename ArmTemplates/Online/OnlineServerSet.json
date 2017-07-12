@@ -36,12 +36,12 @@
   "resources": [
     {
       "apiVersion": "2015-01-01",
-      "name": "[concat(deployment().name, '-', 'vmDep', '-', padLeft(add(copyIndex(),parameters('idFirst')), 2, '0'))]",
+      "name": "[concat(deployment().name, '-', 'vmDep', '-', padLeft(copyIndex(parameters('idFirst')), 2, '0'))]",
       "type": "Microsoft.Resources/deployments",
       "copy": {
         "name": "nestedVMDeploymentCopySet",
         "count": "[variables('count')]",
-        "mode": "serial",
+        // "mode": "serial",
         "batchSize": "[variables('count')]"
       },
       "properties": {
@@ -61,7 +61,7 @@
             "value": "[parameters('existingSubnetName')]"
           },
           "vmName": {
-            "value": "[concat(parameters('vmName'), padLeft(add(copyIndex(),parameters('idFirst')), 2, '0'))]"
+            "value": "[concat(parameters('vmName'), padLeft(copyIndex(parameters('idFirst')), 2, '0'))]"
           },
           "vmSize": {
             "value": "[parameters('vmSize')]"
