@@ -551,9 +551,9 @@
                , "BLOBStorage" : "[base64(parameters('BLOBStorage'))]"
                }
     },
-    "DNSPrefix": {
+    "VMName": {
 	"type" : "string",
-	"value": "[parameters('dnsLabelPrefix')]"
+	"value": "[parameters('vmName')]"
     },
     "PrivateIPAddress" : {
        "type" : "string",
