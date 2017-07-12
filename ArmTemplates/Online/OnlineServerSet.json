@@ -9,7 +9,7 @@
     "vmSize":             { "type": "string" },
     "vmOSStorageType":    { "type": "string" },
     "idFirst":            { "type": "int" },
-    "idLast":             { "type": "int" },
+    "count":              { "type": "int" },
     "userDomain":         { "type": "string" },
     "domainToJoin":       { "type": "string" },
     "domainUsername":     { "type": "string" },
@@ -30,8 +30,7 @@
     "BlobStorage" :       { "type": "string" }
   },
   "variables": {
-    "templatelink": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json",
-    "count": 1 //"[int(add( sub(parameters('idLast'),parameters('idFirst')), 1))]"
+    "templatelink": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
   },
   "resources": [
     {
@@ -41,8 +40,8 @@
       "copy": {
         "name": "nestedVMDeploymentCopySet",
         // "mode": "serial",
-        // "batchSize": "[variables('count')]",     // ... serial only
-        "count": "[variables('count')]"
+        // "batchSize": "[parameters('count')]",     // ... serial only
+        "count": "[parameters('count')]"
       },
       "properties": {
         "mode": "Incremental",
