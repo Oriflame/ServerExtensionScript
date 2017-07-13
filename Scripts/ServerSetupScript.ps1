@@ -41,14 +41,23 @@ try
 
 #region Decode Parameter
     $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
-    $setup = $setupJson | ConvertFrom-Json;
+    $setup = @{}
+    (ConvertFrom-Json $setupJson).psobject.properties | Foreach { $setup[$_.Name] = $_.Value }
 
     $setup.env=$serverEnv.Replace("_", " ")
     $setup.octopusEnv=$octopusEnv.Replace("_", " ")
     $setup.region=$serverRegion;
     $setup.role=$serverRole.Replace("_NA_", "")
     
-    LogToFile "Setup config: $setup" 
+    LogToFile "Setup config: $($setup | Out-String)" 
+
+
+    #check mandatory parameters
+    if ( !$setup.serverEnv -or !$setup.SASToken )
+    {
+        throw "Mandatory parameters 'serverEnv' and 'SASToken' are not provided."
+    }
+
 #endregion
 
 
@@ -60,7 +69,7 @@ try
 #persist parameters in the Osel Dir
     if (!(test-path $oselDir)) {mkdir $oselDir }
     LogToFile "saving parameters as config file $oselDir\$cfgJson" 
-    $setupJson | 
+    $setup | 
         ConvertTo-Json | 
         Out-File "$oselDir\$cfgJson"
 
