@@ -53,9 +53,9 @@ try
 
 
     #check mandatory parameters
-    if ( !$setup.serverEnv -or !$setup.SASToken )
+    if ( !$setup.env -or !$setup.SASToken )
     {
-        throw "Mandatory parameters 'serverEnv' and 'SASToken' are not provided."
+        throw "Mandatory parameters 'env' or 'SASToken' are not provided."
     }
 
 #endregion
@@ -74,7 +74,7 @@ try
         Out-File "$oselDir\$cfgJson"
 
 #download resource storage
-    $url = "$rootStgContainer/$($setup.serverEnv)/$oselRes"
+    $url = "$rootStgContainer/$($setup.env)/$oselRes"
     LogToFile "downloading OSEL: $url" 
     (New-Object System.Net.WebClient).DownloadFile("$url$($setup.SASToken)", "$oselDir\$oselRes")
 
