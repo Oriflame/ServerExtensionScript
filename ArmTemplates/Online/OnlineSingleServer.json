@@ -120,36 +120,16 @@
         "description": "passed to init script"
       }
     },
-    "SAS": {
+    "ServerSetup": {
       "type": "string",
       "metadata": {
-        "description": "sas token passed to init script"
+        "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}"
       }
     },
     "DiagnosticsStorageAccountName": {
       "type": "string",
       "metadata": {
         "description": "Storage account name used for monitoring"
-      }
-    },
-    "RedisCache": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Redic Cache connection string passed to init script"
-      }
-    },
-//    "ServiceBus": {
-//      "type": "string",
-//      "defaultValue": "",
-//      "metadata": {
-//        "description": "Service Bus connection string passed to init script"
-//      },
-    "BLOBStorage": {
-      "type": "string",
-      "defaultValue": "",
-      "metadata": {
-        "description": "Blob Storage connection string passed to init script"
       }
     }
   },
@@ -167,7 +147,8 @@
     "firstFileName": "[variables('firstFileNameBreakString')[0]]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
-    "windowsOSVersion": "2016-Datacenter-Server-Core"
+    "windowsOSVersion": "2016-Datacenter-Server-Core",
+    "initscriptargs": "[concat(' -serverEnv \"', parameters('env'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRegion \"', parameters('region'), '\" -serverRole \"', parameters('role'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
   },
   "resources": [
     {
@@ -530,7 +511,7 @@
           "fileUris": "[split(parameters('initScript'), ' ')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), ' -serverEnv ', parameters('env'), ' -octopusEnv ', parameters('octopusEnv'), ' -serverRegion ', parameters('region'), ' -serverRole ', parameters('role'), ' -SAS ', base64(parameters('SAS')), ' -redisCache ', base64(parameters('RedisCache')), ' -blobStorage ', base64(parameters('BLOBStorage')))]"
+          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), variables('initscriptargs'))]"
         }
       },
       "dependsOn": [
@@ -540,16 +521,15 @@
   ],
   "outputs": {
     "SetupScript": {
-      "type": "string",
-      "value": "[variables('firstFileName')]"
-    },
-    "ConnectionStrings": {
       "type": "object",
-      "value": { "SasToken"    : "[base64(parameters('SAS'))]"
-               , "RedisCache"  : "[base64(parameters('RedisCache'))]"
-            // , "ServiceBus"  : "[base64(parameters('ServiceBus'))]"
-               , "BLOBStorage" : "[base64(parameters('BLOBStorage'))]"
-               }
+      "value": {
+          "setupscript":"[variables('firstFileName')]",
+          "args":"[variables('initscriptargs')]"
+      }
+    },
+    "ServerSetup": {
+      "type": "string",
+      "value": "[parameters('ServerSetup')]"
     },
     "VMName": {
       "type" : "string",
