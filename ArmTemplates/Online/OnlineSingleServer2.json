@@ -147,7 +147,8 @@
     "firstFileName": "[variables('firstFileNameBreakString')[0]]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
-    "windowsOSVersion": "2016-Datacenter-Server-Core"
+    "windowsOSVersion": "2016-Datacenter-Server-Core",
+    "initscriptargs": "[concat(' -serverEnv ', parameters('env'), ' -octopusEnv ', parameters('octopusEnv'), ' -serverRegion ', parameters('region'), ' -serverRole ', parameters('role'), ' -setupB64json ', base64(parameters('ServerSetup')))]"
   },
   "resources": [
     {
@@ -510,7 +511,7 @@
           "fileUris": "[split(parameters('initScript'), ' ')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), ' -serverEnv ', parameters('env'), ' -octopusEnv ', parameters('octopusEnv'), ' -serverRegion ', parameters('region'), ' -serverRole ', parameters('role'), ' -setupB64json ', base64(parameters('ServerSetup')))]"
+          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), variables('initscriptargs'))]"
         }
       },
       "dependsOn": [
@@ -520,8 +521,11 @@
   ],
   "outputs": {
     "SetupScript": {
-      "type": "string",
-      "value": "[variables('firstFileName')]"
+      "type": "object",
+      "value": {
+          "setupscript":"[variables('firstFileName')]",
+          "args":"[variables('initscriptargs')]"
+      }
     },
     "ServerSetup": {
       "type": "string",
