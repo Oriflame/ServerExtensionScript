@@ -148,7 +148,7 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "windowsOSVersion": "2016-Datacenter-Server-Core",
-    "initscriptargs": "[concat(' -serverEnv \", parameters('env'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRegion \"', parameters('region'), '\" -serverRole \"', parameters('role'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
+    "initscriptargs": "[concat(' -serverEnv \"', parameters('env'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRegion \"', parameters('region'), '\" -serverRole \"', parameters('role'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
   },
   "resources": [
     {
