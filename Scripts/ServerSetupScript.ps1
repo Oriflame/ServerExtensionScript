@@ -45,17 +45,19 @@ try
     (ConvertFrom-Json $setupJson).psobject.properties | Foreach { $setup[$_.Name] = $_.Value }
 
     $setup.env=$serverEnv.Replace("_", " ")
+    $setup.serverEnv=$setup.env
     $setup.octopusEnv=$octopusEnv.Replace("_", " ")
     $setup.region=$serverRegion;
     $setup.role=$serverRole.Replace("_NA_", "")
-    
+    $setup.SAS=[System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($setup.SASToken))
+
     LogToFile "Setup config: $($setup | Out-String)" 
 
 
     #check mandatory parameters
-    if ( !$setup.env -or !$setup.SASToken )
+    if ( !$setup.serverEnv -or !$setup.SASToken )
     {
-        throw "Mandatory parameters 'env' or 'SASToken' are not provided."
+        throw "Mandatory parameters 'serverEnv' or 'SASToken' are not provided."
     }
 
 #endregion
