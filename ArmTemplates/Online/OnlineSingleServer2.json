@@ -148,7 +148,7 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "windowsOSVersion": "2016-Datacenter-Server-Core",
-    "initscriptargs": "[concat(' -serverEnv ''', parameters('env'), ''' -octopusEnv ''', parameters('octopusEnv'), ''' -serverRegion ''', parameters('region'), ''' -serverRole ''', parameters('role'), ''' -setupB64json ', base64(parameters('ServerSetup')))]"
+    "initscriptargs": "[concat(' -serverEnv \", parameters('env'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRegion \"', parameters('region'), '\" -serverRole \"', parameters('role'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
   },
   "resources": [
     {
@@ -497,28 +497,28 @@
         "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/', variables('diagnosticsExtensionName'))]"
       ]
     }
-    // ,
-    // {
-    //   "name": "[concat(parameters('vmName'),'/CustomScriptExtension')]",
-    //   "type": "Microsoft.Compute/virtualMachines/extensions",
-    //   "location": "[resourceGroup().location]",
-    //   "apiVersion": "2015-06-15",
-    //   "properties": {
-    //     "publisher": "Microsoft.Compute",
-    //     "type": "CustomScriptExtension",
-    //     "typeHandlerVersion": "1.7",
-    //     "autoUpgradeMinorVersion": true,
-    //     "settings": {
-    //       "fileUris": "[split(parameters('initScript'), ' ')]"
-    //     },
-    //     "protectedSettings": {
-    //       "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), variables('initscriptargs'))]"
-    //     }
-    //   },
-    //   "dependsOn": [
-    //     "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/joindomain')]"
-    //   ]
-    // }
+    ,
+    {
+      "name": "[concat(parameters('vmName'),'/CustomScriptExtension')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2015-06-15",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.7",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": "[split(parameters('initScript'), ' ')]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('firstFileName'), variables('initscriptargs'))]"
+        }
+      },
+      "dependsOn": [
+        "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/joindomain')]"
+      ]
+    }
   ],
   "outputs": {
     "SetupScript": {

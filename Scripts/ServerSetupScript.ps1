@@ -1,10 +1,10 @@
 [CmdletBinding()]
 param
 (
-    [Parameter(Mandatory=$true)] [string]$serverEnv,
-    [Parameter(Mandatory=$true)] [string]$octopusEnv,
-    [Parameter(Mandatory=$true)] [string]$serverRegion,
-    [Parameter(Mandatory=$true)] [string]$serverRole,
+    [Parameter(Mandatory=$true)]  [string]$serverEnv,
+    [Parameter(Mandatory=$false)] [string]$octopusEnv,
+    [Parameter(Mandatory=$false)] [string]$serverRegion,
+    [Parameter(Mandatory=$false)] [string]$serverRole,
 
     [Parameter(Mandatory=$true)] [string]$setupB64json
 )
