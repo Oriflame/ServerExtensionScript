@@ -169,6 +169,9 @@
       "name": "[variables('nicName')]",
       "apiVersion": "2017-03-01",
       "location": "[resourceGroup().location]",
+      "tags" : {
+          "VM" : "[parameters('vmName')]"  
+      },
       "properties": {
         "ipConfigurations": [
           {
@@ -188,6 +191,9 @@
       "name": "[parameters('vmName')]",
       "apiVersion": "2016-04-30-preview",
       "location": "[resourceGroup().location]",
+      "tags" : {
+          "VM" : "[parameters('vmName')]"  
+      },      
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
