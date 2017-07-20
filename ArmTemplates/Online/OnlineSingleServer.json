@@ -160,7 +160,6 @@
         "tier": "Standard"
       },
       "kind": "Storage",
-      "tags": {},
       "location": "[resourceGroup().location]",
       "properties": {}
     },
