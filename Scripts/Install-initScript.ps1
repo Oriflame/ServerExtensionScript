@@ -45,7 +45,7 @@ try
     (ConvertFrom-Json $setupJson).psobject.properties | Foreach { $setup[$_.Name] = $_.Value }
 
     #$setup.env=$serverEnv #.Replace("_", " ")
-    $setup.serverEnv=$setup.serverEnv
+    $setup.serverEnv=$serverEnv
     $setup.octopusEnv=$octopusEnv #.Replace("_", " ")
     $setup.serverRegion=$serverRegion;
     $setup.octopusRole=$octopusRole #.Replace("_NA_", "")
