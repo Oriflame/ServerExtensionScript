@@ -76,7 +76,7 @@ try
         Out-File "$oselDir\$cfgJson"
 
 #download resource storage
-    $url = "$rootStgContainer/$($setup.env)/$oselRes"
+    $url = "$rootStgContainer/$($setup.serverEnv)/$oselRes"
     LogToFile "downloading OSEL: $url" 
     (New-Object System.Net.WebClient).DownloadFile("$url$($setup.SASToken)", "$oselDir\$oselRes")
 
