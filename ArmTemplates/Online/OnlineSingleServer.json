@@ -96,28 +96,28 @@
         "description": "init script for custom script extension"
       }
     },
-    "env": {
+    "serverEnv": {
       "type": "string",
       "metadata": {
-        "description": "passed to init script"
+        "description": "passed to init script as serverEnv"
       }
     },
     "octopusEnv": {
       "type": "string",
       "metadata": {
-        "description": "passed to init script"
+        "description": "passed to init script as octopusEnv"
       }
     },
-    "region": {
+    "serverRegion": {
       "type": "string",
       "metadata": {
-        "description": "passed to init script"
+        "description": "passed to init script as serverRegion"
       }
     },
-    "role": {
+    "octopusRole": {
       "type": "string",
       "metadata": {
-        "description": "passed to init script"
+        "description": "passed to init script as octopusRole"
       }
     },
     "ServerSetup": {
@@ -148,7 +148,7 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "windowsOSVersion": "2016-Datacenter-Server-Core",
-    "initscriptargs": "[concat(' -serverEnv \"', parameters('env'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRegion \"', parameters('region'), '\" -serverRole \"', parameters('role'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
+    "initscriptargs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRegion \"', parameters('serverRegion'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
   },
   "resources": [
     {
