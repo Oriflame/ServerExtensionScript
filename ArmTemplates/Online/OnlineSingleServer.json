@@ -148,7 +148,12 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "windowsOSVersion": "2016-Datacenter-Server-Core",
-    "initscriptargs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRegion \"', parameters('serverRegion'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
+    "initscriptargs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRegion \"', parameters('serverRegion'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]",
+    "domainJoinAccount": "[concat(parameters('domainUsername'), '@', parameters('userDomain'))]"
+    // NO "prg.ori.local\\user",
+    // "User": "[concat(PRGORILOCAL\\', parameters('domainUsername'))]",
+    // "User": "[concat(parameters('domainUsername'), '@oriflame.com'))]",
+    
   },
   "resources": [
     {
@@ -489,7 +494,7 @@
         "settings": {
           "Name": "[parameters('domainToJoin')]",
           "OUPath": "[parameters('ouPath')]",
-          "User": "[concat(parameters('userDomain'), '\\', parameters('domainUsername'))]",
+          "User": "[variables('domainJoinAccount')]",
           "Restart": "true",
           "Options": "[parameters('domainJoinOptions')]"
         },
