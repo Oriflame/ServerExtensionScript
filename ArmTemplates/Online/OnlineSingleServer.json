@@ -500,11 +500,11 @@
         "typeHandlerVersion": "1.3",
         "autoUpgradeMinorVersion": true,
         "settings": {
-          "Name": "[parameters('domainJoinToDomain')]",
-          "OUPath": "[parameters('domainJoinOuPath')]",
-          "User": "[variables('domainJoinAccount')]",
-          "Restart": "true",
-          "Options": "[parameters('domainJoinOptions')]"
+          "Name":    "[parameters('domainJoinToDomain')]",
+          "OUPath":  "[parameters('domainJoinOuPath')]",
+          "User":    "[parameters('domainJoinAccount')]",
+          "Options": "[parameters('domainJoinOptions')]",          
+          "Restart": true
         },
         "protectedSettings": {
           "Password": "[parameters('domainJoinPassword')]"
