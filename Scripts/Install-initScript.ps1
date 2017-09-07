@@ -45,11 +45,12 @@ try
     (ConvertFrom-Json $setupJson).psobject.properties | Foreach { $setup[$_.Name] = $_.Value }
 
     #$setup.env=$serverEnv 
-    $setup.serverEnv=$serverEnv
+    $setup.serverEnv=$serverEnv.ToUpper()
     $setup.octopusEnv=$octopusEnv 
-    $setup.serverRole=$serverRole
+    $setup.serverRole=$serverRole.ToLower()
     $setup.octopusRole=$octopusRole 
-    $setup.SAS=[System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($setup.SASToken))
+    #back compatibility - it is intended to remove SAS and use decoded version of token (SASToken)
+    # $setup.SAS=[System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($setup.SASToken))
 
     LogToFile "Setup config: $($setup | Out-String)" 
 
