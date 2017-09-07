@@ -23,7 +23,7 @@
     "initScript":         { "type": "string" },
     "serverEnv":          { "type": "string" },
     "octopusEnv":         { "type": "string" },
-    "serverRegion":       { "type": "string" },
+    "serverRole":         { "type": "string" },
     "octopusRole":        { "type": "string" },
     "ServerSetup":        { "type": "string" },
     "DiagnosticsStorageAccountName": { "type": "string" }
@@ -67,7 +67,7 @@
 
           "serverEnv":            { "value": "[parameters('serverEnv')]" },
           "octopusEnv":           { "value": "[parameters('octopusEnv')]" },
-          "serverRegion":         { "value": "[parameters('serverRegion')]" },
+          "serverRole":           { "value": "[parameters('serverRole')]" },
           "octopusRole":          { "value": "[parameters('octopusRole')]" },
           "initScript":           { "value": "[parameters('initScript')]" },
           "ServerSetup":          { "value": "[parameters('ServerSetup')]" },

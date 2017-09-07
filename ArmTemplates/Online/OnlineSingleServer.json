@@ -116,10 +116,10 @@
         "description": "passed to init script as octopusEnv"
       }
     },
-    "serverRegion": {
+    "serverRole": {
       "type": "string",
       "metadata": {
-        "description": "passed to init script as serverRegion"
+        "description": "passed to init script as serverRole"
       }
     },
     "octopusRole": {
@@ -156,7 +156,7 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "windowsOSVersion": "2016-Datacenter-Server-Core",
-    "initscriptargs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRegion \"', parameters('serverRegion'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
+    "initscriptargs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRole \"', parameters('serverRole'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
     // "domainJoinAccount": "[concat(parameters('domainUsername'), '@', parameters('userDomain'))]"
     // NO "prg.ori.local\\user",
     // "User": "[concat(PRGORILOCAL\\', parameters('domainUsername'))]",

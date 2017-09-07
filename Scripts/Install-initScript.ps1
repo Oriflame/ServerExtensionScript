@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param
 (
-    [Parameter(Mandatory=$false)] [string]$serverRegion,
+    [Parameter(Mandatory=$false)] [string]$serverRole,
     [Parameter(Mandatory=$true)]  [string]$serverEnv,
     [Parameter(Mandatory=$false)] [string]$octopusEnv,
     [Parameter(Mandatory=$false)] [string]$octopusRole,
@@ -44,11 +44,11 @@ try
     $setup = @{}
     (ConvertFrom-Json $setupJson).psobject.properties | Foreach { $setup[$_.Name] = $_.Value }
 
-    #$setup.env=$serverEnv #.Replace("_", " ")
+    #$setup.env=$serverEnv 
     $setup.serverEnv=$serverEnv
-    $setup.octopusEnv=$octopusEnv #.Replace("_", " ")
-    $setup.serverRegion=$serverRegion;
-    $setup.octopusRole=$octopusRole #.Replace("_NA_", "")
+    $setup.octopusEnv=$octopusEnv 
+    $setup.serverRole=$serverRole
+    $setup.octopusRole=$octopusRole 
     $setup.SAS=[System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($setup.SASToken))
 
     LogToFile "Setup config: $($setup | Out-String)" 
