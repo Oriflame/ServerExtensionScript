@@ -8,6 +8,8 @@
     "vmName":             { "type": "string" },
     "vmSize":             { "type": "string" },
     "vmOSStorageType":    { "type": "string" },
+    "vmOSVersion":        { "type": "string", "defaultValue": "2016-Datacenter-Server-Core" },
+
     "vmAdminUsername":    { "type": "string" },
     "vmAdminPassword":    { "type": "securestring" },
     
@@ -55,6 +57,7 @@
           "vmName":               { "value": "[concat(parameters('vmName'), padLeft(copyIndex(parameters('idFirst')), 2, '0'))]"  },
           "vmSize":               { "value": "[parameters('vmSize')]" },
           "vmOSStorageType":      { "value": "[parameters('vmOSStorageType')]" },
+          "vmOSVersion":          { "value": "2016-Datacenter" },
           "vmAdminUsername":      { "value": "[parameters('vmAdminUsername')]" },
           "vmAdminPassword":      { "value": "[parameters('vmAdminPassword')]" },
           

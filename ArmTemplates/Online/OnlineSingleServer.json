@@ -33,12 +33,11 @@
         "description": "The size of the virtual machines"
       }
     },
-    "vmOSStorageType": {
-      "defaultValue": "Standard_LRS",
-      "type": "string",
-      "metadata": {
-        "description": "The type of storage for virtual machines. Can be Standard_LRS or Premium_LRS. Needs to correlate with vmSize"
-      }
+    "vmOSStorageType": { "type": "string", "defaultValue": "Standard_LRS",      
+                     "metadata": { "description": "The type of storage for virtual machines. Can be Standard_LRS or Premium_LRS. Needs to correlate with vmSize" }
+    },
+    "vmOSVersion": {  "type": "string", "defaultValue": "2016-Datacenter-Server-Core",
+                  "metadata": { "description": "The type of OS for virtual machines." }
     },
     "vmAdminUsername": {
       "type": "string",
@@ -59,24 +58,12 @@
         "description": "The account of the user with permissions to add"
       }
     },
-    // "userDomain": {
-    //   "type": "string",
-    //   "metadata": {
-    //     "description": "The FQDN of the user domain with permissions to add"
-    //   }
-    // },
     "domainJoinToDomain": {
       "type": "string",
       "metadata": {
         "description": "The FQDN of the AD domain"
       }
     },
-    // "domainUsername": {
-    //   "type": "string",
-    //   "metadata": {
-    //     "description": "Username of the account on the domain"
-    //   }
-    // },
     "domainJoinPassword": {
       "type": "securestring",
       "metadata": {
@@ -155,7 +142,7 @@
     "firstFileName": "[variables('firstFileNameBreakString')[0]]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
-    "windowsOSVersion": "2016-Datacenter-Server-Core",
+    "windowsOSVersion": "[parameters('vmOSVersion')]",     //    "2016-Datacenter-Server-Core",
     "initscriptargs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRole \"', parameters('serverRole'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
     // "domainJoinAccount": "[concat(parameters('domainUsername'), '@', parameters('userDomain'))]"
     // NO "prg.ori.local\\user",
