@@ -57,7 +57,7 @@
           "vmName":               { "value": "[concat(parameters('vmName'), padLeft(copyIndex(parameters('idFirst')), 2, '0'))]"  },
           "vmSize":               { "value": "[parameters('vmSize')]" },
           "vmOSStorageType":      { "value": "[parameters('vmOSStorageType')]" },
-          "vmOSVersion":          { "value": "2016-Datacenter" },
+          "vmOSVersion":          { "value": "[parameters('vmOSVersion')]" },
           "vmAdminUsername":      { "value": "[parameters('vmAdminUsername')]" },
           "vmAdminPassword":      { "value": "[parameters('vmAdminPassword')]" },
           
