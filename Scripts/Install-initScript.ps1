@@ -32,6 +32,28 @@ function LogToFile( [string] $text )
     "$($date): $text" | Out-File $logFile -Append
 }
 
+function SelectMostMatchingOnly( $dict, $key, $suffix )
+{
+    $val = $dict[$key]
+    if ( $dict.Contains["$key-$suffix"] ) 
+    {
+	$val = $dict["$key-$suffix"]
+        LogToFile "Specific key found [$key-$suffix]: $val"
+    } else {
+        LogToFile "Common key used [$key]: $val"
+    }
+
+    #remove all 
+    $toremove = $dict.Keys | ?{ $_ -like "$key*" }
+    $toremove | %{ $dict.Remove($_) }
+
+    #set as key - if a value is present
+    if ( $val )
+    {
+       $dict[$key] = $val
+    }
+}
+
 #start
     LogToFile "Current folder $currentScriptFolder" 
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -49,11 +71,11 @@ try
     $setup.octopusEnv=$octopusEnv 
     $setup.serverRole=$serverRole.ToLower()
     $setup.octopusRole=$octopusRole 
-    #back compatibility - it is intended to remove SAS and use decoded version of token (SASToken)
-    # $setup.SAS=[System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes($setup.SASToken))
+
+    #select valid BlobStorage
+    SelectMostMatchingOnly $setup "BlobStorage" $setup.serverRole
 
     LogToFile "Setup config: $($setup | Out-String)" 
-
 
     #check mandatory parameters
     if ( !$setup.serverEnv -or !$setup.SASToken )
