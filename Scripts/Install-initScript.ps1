@@ -34,24 +34,23 @@ function LogToFile( [string] $text )
 
 function SelectMostMatchingOnly( $dict, $key, $suffix )
 {
-    $val = $dict[$key]
-    if ( $dict.Contains["$key-$suffix"] ) 
+    $bestkey = "$key-$suffix" #shared pattern
+    LogToFile "Looking for [$bestkey]"
+    if ( $dict.Contains["$bestkey"] ) 
     {
-	$val = $dict["$key-$suffix"]
-        LogToFile "Specific key found [$key-$suffix]: $val"
+        LogToFile "Specific key found [$bestkey]: $($dict[$bestkey])"
+        LogToFile "Replacing value [$key]: $($dict[$key])"
+        $dict[$key] = $dict[$bestkey]
     } else {
-        LogToFile "Common key used [$key]: $val"
+        LogToFile "Common key used [$key]:  $($dict[$key])"
     }
 
     #remove all 
-    $toremove = $dict.Keys | ?{ $_ -like "$key*" }
-    $toremove | %{ $dict.Remove($_) }
-
-    #set as key - if a value is present
-    if ( $val )
-    {
-       $dict[$key] = $val
-    }
+    $toremove = $dict.Keys | ?{ $_ -like "$key-*" }
+    $toremove | %{ 
+            LogToFile "Removing [$_]"
+            $dict.Remove($_) 
+        }
 }
 
 #start
