@@ -35,8 +35,11 @@ function LogToFile( [string] $text )
 function SelectMostMatchingOnly( $dict, $key, $suffix )
 {
     $bestkey = "$key-$suffix" #shared pattern
+    LogToFile "Key=$key, Sfx=$suffix, Best=$bestkey"
+    LogToFile "Dict=$dict"
+    
     LogToFile "Looking for [$bestkey]"
-    if ( $dict.Contains["$bestkey"] ) 
+    if ( $dict.Contains($bestkey) ) 
     {
         LogToFile "Specific key found [$bestkey]: $($dict[$bestkey])"
         LogToFile "Replacing value [$key]: $($dict[$key])"
@@ -72,7 +75,7 @@ try
     $setup.octopusRole=$octopusRole 
 
     #select valid BlobStorage
-    SelectMostMatchingOnly $setup "BlobStorage" $setup.serverRole
+    SelectMostMatchingOnly $setup "BlobStorage" $serverRole
 
     LogToFile "Setup config: $($setup | Out-String)" 
 
