@@ -100,10 +100,6 @@
     "nicName": "[concat(parameters('vmName'),'Nic')]",
     "vnetID": "[resourceId(parameters('existingVnetRG'), 'Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]",
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
-    "UriFileNamePieces": "[split(parameters('initScript'), '/')]",
-    "firstFileNameString": "[variables('UriFileNamePieces')[sub(length(variables('UriFileNamePieces')), 1)]]",
-    "firstFileNameBreakString": "[split(variables('firstFileNameString'), '?')]",
-    "firstFileName": "[variables('firstFileNameBreakString')[0]]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "windowsOSVersion": "[parameters('vmOSVersion')]"     //    "2016-Datacenter-Server-Core",    
@@ -462,17 +458,6 @@
     }
   ],
   "outputs": {
-    "SetupScript": {
-      "type": "object",
-      "value": {
-          "setupscript":"[variables('firstFileName')]",
-          "args":"[variables('initscriptargs')]"
-      }
-    },
-    "ServerSetup": {
-      "type": "string",
-      "value": "[parameters('ServerSetup')]"
-    },
     "VMName": {
       "type" : "string",
 	    "value": "[parameters('vmName')]"
