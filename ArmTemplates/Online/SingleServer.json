@@ -85,6 +85,11 @@
       }
     },
     
+    "ServerSetup": { "type": "string",
+       "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
+    },
+
+
     "DiagnosticsStorageAccountName": {
       "type": "string",
       "metadata": {
