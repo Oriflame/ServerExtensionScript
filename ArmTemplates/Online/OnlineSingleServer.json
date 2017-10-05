@@ -116,7 +116,7 @@
       }
     },
     "ServerSetup": {
-      "type": "string",
+      "type": "securestring",
       "metadata": {
         "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}"
       }
@@ -143,7 +143,7 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
     "windowsOSVersion": "[parameters('vmOSVersion')]",     //    "2016-Datacenter-Server-Core",
-    "initscriptargs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRole \"', parameters('serverRole'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
+    "initscriptargs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRole \"', parameters('serverRole'), '\" -octopusRole \"', parameters('octopusRole'), '\" -securejson ', parameters('ServerSetup'))]"
     // "domainJoinAccount": "[concat(parameters('domainUsername'), '@', parameters('userDomain'))]"
     // NO "prg.ori.local\\user",
     // "User": "[concat(PRGORILOCAL\\', parameters('domainUsername'))]",
@@ -533,7 +533,7 @@
       }
     },
     "ServerSetup": {
-      "type": "string",
+      "type": "securestring",
       "value": "[parameters('ServerSetup')]"
     },
     "VMName": {

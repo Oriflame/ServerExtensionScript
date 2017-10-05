@@ -6,7 +6,7 @@ param
     [Parameter(Mandatory=$false)] [string]$octopusEnv,
     [Parameter(Mandatory=$false)] [string]$octopusRole,
 
-    [Parameter(Mandatory=$true)] [string]$setupB64json
+    [Parameter(Mandatory=$true)] [securestring]$securejson
 )
 
 #region CONSTANTS
@@ -143,7 +143,8 @@ try
 {
 
 #region Decode Parameter
-    $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
+    $setupJson = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto( [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($securejson) )
+    # $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
     $setup = @{}
     (ConvertFrom-Json $setupJson).psobject.properties | Foreach { $setup[$_.Name] = $_.Value }
 
