@@ -19,12 +19,12 @@ param
 
     $schedulerTaskLog   = "$logDir\Vault.Task.txt"
     $vaultScheduledTask = "LocalVaultSetup"
-    $vaultURLTarget     = "http://onlinearmvault.vault.azure.net/"
-        # UserName contains azure KV DNS e.g. https://onlinetestarmvault.vault.azure.net/ (used as dynamic vault in next step)
+    $vaultURLTarget     = "http://*.vault.azure.net/"
+        # UserName contains azure KV name e.g. "onlinetestarmvault" (used as dynamic vault in next step)
         # Password contains azure App_ID
     #dynamic vault
-        #username = secret
-        #password = secret pwd        
+        #username = $aadClientId 
+        #password = $aadClientSecret 
 
 #endregion
 
@@ -73,9 +73,9 @@ function RegisterPSModules()
     Install-Module CredentialManager -Force     
 }
 
-function RegisterLocalVaultKey( $localTargetUrl, $appId, $azureKVUrl, $secret, $secretPwd, $persist = "LocalMachine" )
+function RegisterLocalVaultKey( $localTargetUrl, $vaultName, $aadClientId, $aadClientSecret, $persist = "LocalMachine" )
 {
-    if ( !$localTargetUrl -or !$appId -or !$azureKVUrl -or !$secret -or !$secretPwd )
+    if ( !$localTargetUrl -or !$vaultName -or !$aadClientId -or !$aadClientSecret )
     {
         LogToFile "All Valut parameters are mandatory - NO Vault modification performed";    
         return;
@@ -87,10 +87,10 @@ function RegisterLocalVaultKey( $localTargetUrl, $appId, $azureKVUrl, $secret, $
 @"
       "Executed: `$(Get-Date)" >> $schedulerTaskLog
       try {
-        `$sp = ConvertTo-SecureString `"$appId`" -AsPlainText -Force    
-        New-StoredCredential -Target `"$localTargetUrl`" -UserName `"$azureKVUrl`" -SecurePassword `$sp -Persist $persist >> $schedulerTaskLog 
-        `$sp = ConvertTo-SecureString `"$secretPwd`" -AsPlainText -Force        
-        New-StoredCredential -Target `"$azureKVUrl`" -UserName `"$secret`" -SecurePassword `$sp -Persist $persist >> $schedulerTaskLog 
+        `$sp = ConvertTo-SecureString `"dummy`" -AsPlainText -Force    
+        New-StoredCredential -Target `"$localTargetUrl`" -UserName `"$vaultName`" -SecurePassword `$sp -Persist $persist >> $schedulerTaskLog 
+        `$sp = ConvertTo-SecureString `"$aadClientSecret`" -AsPlainText -Force        
+        New-StoredCredential -Target `"$vaultName`" -UserName `"$aadClientId`" -SecurePassword `$sp -Persist $persist >> $schedulerTaskLog 
       } catch {
         `$_.Exception.Message >> $schedulerTaskLog   
       } finally {
@@ -121,20 +121,18 @@ function UpdateVault( $setup )
 {
     RegisterPSModules
 
-    $appId = $setup.Vault_AppID;
-    if ( $appId ) { $setup.Vault_AppID = '~~ xxx ~~'  }
+    $vaultName = $setup.Vault_Name;
+    # if ( $vaultName ) { $setup.Vault_Name = '~~ xxx ~~'  }
 
-    $azureKVUrl = $setup.Vault_AzureUrl;
-    # if ( $azureKVUrl ) { $setup.Vault_AzureUrl = '~~ xxx ~~'  }
+    $aadClientId = $setup.Vault_aadClientId;
+    if ( $aadClientId ) { $setup.Vault_aadClientId = '~~ xxx ~~'  }
 
-    $secret = $setup.Vault_SecretName;
-    if ( $secret ) { $setup.Vault_SecretName = '~~ xxx ~~'  }
+    $aadClientSecret = $setup.Vault_aadClientSecret;
+    if ( $aadClientSecret ) { $setup.Vault_aadClientSecret = '~~ xxx ~~'  }
 
-    $secretPwd = $setup.Vault_Secret;
-    if ( $secretPwd ) { $setup.Vault_Secret = '~~ xxx ~~'  }
-
-    RegisterLocalVaultKey $vaultURLTarget $appId $azureKVUrl $secret $secretPwd
+    RegisterLocalVaultKey $vaultURLTarget $vaultName $aadClientId $aadClientSecret
 }
+
 
 
 #start
@@ -159,7 +157,7 @@ try
     SelectMostMatchingOnly $setup "BlobStorage" $serverRole
 
     # credentials save
-    UpdateVaul $setup
+    UpdateVault $setup
 
     LogToFile "Setup config: $($setup | Out-String)" 
 
