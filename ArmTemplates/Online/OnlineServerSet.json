@@ -27,7 +27,7 @@
     "octopusEnv":         { "type": "string" },
     "serverRole":         { "type": "string" },
     "octopusRole":        { "type": "string" },
-    "ServerSetup":        { "type": "securestring" },
+    "ServerSetup":        { "type": "string" },
     "DiagnosticsStorageAccountName": { "type": "string" }
   },
   "variables": {

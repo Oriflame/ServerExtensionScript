@@ -85,7 +85,7 @@
       }
     },
     
-    "ServerSetup": { "type": "securestring",
+    "ServerSetup": { "type": "string",
        "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
     },
 
