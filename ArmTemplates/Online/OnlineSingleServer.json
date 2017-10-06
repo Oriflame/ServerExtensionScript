@@ -79,7 +79,6 @@
     "storageAccountName": "[parameters('DiagnosticsStorageAccountName')]",
     "diagnosticsStorageAccountId": "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
     "diagnosticsExtensionName": "IaaSDiagnostics",
-    "apiVersion": "2017-03-30",
     "nicName": "[concat(parameters('vmName'),'Nic')]",
     "vnetID": "[resourceId(parameters('existingVnetRG'), 'Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]",
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
@@ -96,7 +95,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccountName')]",
-      "apiVersion": "[variables('apiVersion')]",
+      "apiVersion": "2017-06-01",
       "sku": {
         "name": "Standard_LRS",
         "tier": "Standard"
@@ -108,7 +107,7 @@
     {
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nicName')]",
-      "apiVersion": "[variables('apiVersion')]",
+      "apiVersion": "2017-06-01",
       "location": "[resourceGroup().location]",
       "tags" : {
           "VM" : "[parameters('vmName')]"  
@@ -128,7 +127,7 @@
       }
     },
     {
-      "apiVersion": "[variables('apiVersion')]",
+      "apiVersion": "2016-04-30-preview",
       "type":       "Microsoft.Compute/virtualMachines",
       "identity":   { "type": "systemAssigned" },
       "name":       "[parameters('vmName')]",
@@ -177,7 +176,7 @@
     {
       "name": "[concat(parameters('vmName'),'/', variables('diagnosticsExtensionName'))]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "[variables('apiVersion')]",
+      "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
@@ -418,7 +417,7 @@
     { 
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(parameters('vmName'),'/ManagedIdentityExtensionForWindows')]",
-      "apiVersion": "[variables('apiVersion')]",
+      "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "dependsOn": [
           "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
@@ -435,7 +434,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(parameters('vmName'),'/joindomain')]",
-      "apiVersion": "[variables('apiVersion')]",
+      "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "properties": {
         "publisher": "Microsoft.Compute",
@@ -462,7 +461,7 @@
       "name": "[concat(parameters('vmName'),'/CustomScriptExtension')]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2015-06-15",
+      "apiVersion": "2016-03-30",
       "properties": {
         "publisher": "Microsoft.Compute",
         "type": "CustomScriptExtension",
