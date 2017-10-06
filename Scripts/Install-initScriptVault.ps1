@@ -73,11 +73,11 @@ function RegisterPSModules()
     Install-Module CredentialManager -Force     
 }
 
-function RegisterLocalVaultKey( $localTargetUrl, $vaultName, $aadClientId, $aadClientSecret, $persist = "LocalMachine" )
+function RegisterLocalVaultKey( $localTargetUrl, $vaultName, $persist = "LocalMachine" )
 {
-    if ( !$localTargetUrl -or !$vaultName -or !$aadClientId -or !$aadClientSecret )
+    if ( !$localTargetUrl -or !$vaultName )
     {
-        LogToFile "All Valut parameters are mandatory - NO Vault modification performed";    
+        LogToFile "Valut configuration is not requested - NO Vault modification performed";    
         return;
     }
 
@@ -89,8 +89,6 @@ function RegisterLocalVaultKey( $localTargetUrl, $vaultName, $aadClientId, $aadC
       try {
         `$sp = ConvertTo-SecureString `"dummy`" -AsPlainText -Force    
         New-StoredCredential -Target `"$localTargetUrl`" -UserName `"$vaultName`" -SecurePassword `$sp -Persist $persist >> $schedulerTaskLog 
-        `$sp = ConvertTo-SecureString `"$aadClientSecret`" -AsPlainText -Force        
-        New-StoredCredential -Target `"$vaultName`" -UserName `"$aadClientId`" -SecurePassword `$sp -Persist $persist >> $schedulerTaskLog 
       } catch {
         `$_.Exception.Message >> $schedulerTaskLog   
       } finally {
@@ -122,15 +120,8 @@ function UpdateVault( $setup )
     RegisterPSModules
 
     $vaultName = $setup.Vault_Name;
-    # if ( $vaultName ) { $setup.Vault_Name = '~~ xxx ~~'  }
 
-    $aadClientId = $setup.Vault_aadClientId;
-    if ( $aadClientId ) { $setup.Vault_aadClientId = '~~ xxx ~~'  }
-
-    $aadClientSecret = $setup.Vault_aadClientSecret;
-    if ( $aadClientSecret ) { $setup.Vault_aadClientSecret = '~~ xxx ~~'  }
-
-    RegisterLocalVaultKey $vaultURLTarget $vaultName $aadClientId $aadClientSecret
+    RegisterLocalVaultKey $vaultURLTarget $vaultName
 }
 
 
