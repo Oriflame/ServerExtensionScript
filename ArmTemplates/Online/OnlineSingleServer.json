@@ -2,137 +2,84 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "existingVNETName": {
-      "type": "string",
-      "metadata": {
-        "description": "Existing VNET that contains the domain controller"
-      }
+    "existingVNETName": { "type": "string",
+        "metadata": { "description": "Existing VNET that contains the domain controller" }
     },
-    "existingVnetRG": {
-      "type": "string",
-      "metadata": {
-        "description": "Existing VNET ResourceGroup"
-      }
+    "existingVnetRG": { "type": "string",
+        "metadata": { "description": "Existing VNET ResourceGroup" }
     },
-    "existingSubnetName": {
-      "type": "string",
-      "metadata": {
-        "description": "Existing subnet that contains the domain controller"
-      }
+    "existingSubnetName": { "type": "string",
+        "metadata": { "description": "Existing subnet that contains the domain controller" }
     },
-    "vmName": {
-      "type": "string",
-      "metadata": {
-        "description": "Name of the VM"
-      }
+
+    "vmName": { "type": "string",
+        "metadata": { "description": "Name of the VM" }
     },
-    "vmSize": {
-      "defaultValue": "Standard_A2",
-      "type": "string",
-      "metadata": {
-        "description": "The size of the virtual machines"
-      }
+    "vmSize": { "type": "string",
+        "defaultValue": "Standard_A2",
+        "metadata": { "description": "The size of the virtual machines" }
     },
-    "vmOSStorageType": { "type": "string", "defaultValue": "Standard_LRS",      
-                     "metadata": { "description": "The type of storage for virtual machines. Can be Standard_LRS or Premium_LRS. Needs to correlate with vmSize" }
+    "vmOSStorageType": { "type": "string", 
+        "defaultValue": "Standard_LRS",      
+        "metadata": { "description": "The type of storage for virtual machines. Can be Standard_LRS or Premium_LRS. Needs to correlate with vmSize" }
     },
-    "vmOSVersion": {  "type": "string", "defaultValue": "2016-Datacenter-Server-Core",
-                  "metadata": { "description": "The type of OS for virtual machines." }
+    "vmOSVersion": {  "type": "string", 
+        "defaultValue": "2016-Datacenter-Server-Core",
+        "metadata": { "description": "The type of OS for virtual machines." }
     },
-    "vmAdminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the administrator of the new VM and the domain. Exclusion list: 'admin','administrator"
-      }
+    "vmAdminUsername": { "type": "string",
+        "metadata": { "description": "The name of the administrator of the new VM and the domain. Exclusion list: 'admin','administrator" }
     },
-    "vmAdminPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The password for the administrator account of the new VM and the domain"
-      }
+    "vmAdminPassword": { "type": "securestring",
+        "metadata": { "description": "The password for the administrator account of the new VM and the domain" }
     },
     
-    "domainJoinAccount": {
-      "type": "string",
-      "metadata": {
-        "description": "The account of the user with permissions to add"
-      }
+    "domainJoinAccount": { "type": "string",
+        "metadata": { "description": "The account of the user with permissions to add" }
     },
-    "domainJoinToDomain": {
-      "type": "string",
-      "metadata": {
-        "description": "The FQDN of the AD domain"
-      }
+    "domainJoinToDomain": { "type": "string",
+        "metadata": { "description": "The FQDN of the AD domain" }
     },
-    "domainJoinPassword": {
-      "type": "securestring",
-      "metadata": {
-        "description": "Password of the account on the domain"
-      }
+    "domainJoinPassword": { "type": "securestring",
+        "metadata": { "description": "Password of the account on the domain" }
     },
-    "domainJoinOuPath": {
-      "defaultValue": "",
-      "type": "string",
-      "metadata": {
-        "description": "Specifies an organizational unit (OU) for the domain account. Enter the full distinguished name of the OU in quotation marks. Example: 'OU=testOU; DC=domain; DC=Domain; DC=com"
-      }
+    "domainJoinOuPath": { "type": "string",
+        "defaultValue": "",
+        "metadata": { "description": "Specifies an organizational unit (OU) for the domain account. Enter the full distinguished name of the OU in quotation marks. Example: 'OU=testOU; DC=domain; DC=Domain; DC=com" }
     },
-    "domainJoinOptions": {
-      "defaultValue": 3,
-      "type": "int",
-      "metadata": {
-        "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx"
-      }
+    "domainJoinOptions": { "type": "int",
+        "defaultValue": 3,
+        "metadata": { "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx" }
     },
     
-    "initScript": {
-      "type": "string",
-      "metadata": {
-        "description": "init script for custom script extension"
-      }
+    "initScript": { "type": "string",
+        "metadata": { "description": "init script for custom script extension" }
     },
-    "serverEnv": {
-      "type": "string",
-      "metadata": {
-        "description": "passed to init script as serverEnv"
-      }
+    "serverEnv": { "type": "string",
+        "metadata": { "description": "passed to init script as serverEnv" }
     },
-    "octopusEnv": {
-      "type": "string",
-      "metadata": {
-        "description": "passed to init script as octopusEnv"
-      }
+    "octopusEnv": { "type": "string",
+        "metadata": { "description": "passed to init script as octopusEnv" }
     },
-    "serverRole": {
-      "type": "string",
-      "metadata": {
-        "description": "passed to init script as serverRole"
-      }
+    "serverRole": { "type": "string",
+        "metadata": { "description": "passed to init script as serverRole" }
     },
-    "octopusRole": {
-      "type": "string",
-      "metadata": {
-        "description": "passed to init script as octopusRole"
-      }
+    "octopusRole": { "type": "string",
+        "metadata": { "description": "passed to init script as octopusRole" }
     },
-    "ServerSetup": {
-      "type": "string",
-      "metadata": {
-        "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}"
-      }
+    "ServerSetup": { "type": "string",
+        "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
     },
-    "DiagnosticsStorageAccountName": {
-      "type": "string",
-      "metadata": {
-        "description": "Storage account name used for monitoring"
-      }
+    "DiagnosticsStorageAccountName": { "type": "string",
+        "metadata": { "description": "Storage account name used for monitoring" }
     }
   },
+
   "variables": {
     "storageAccountName": "[parameters('DiagnosticsStorageAccountName')]",
     "diagnosticsStorageAccountId": "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
     "diagnosticsExtensionName": "IaaSDiagnostics",
-    "apiVersion": "2015-06-15",
+    "apiVersion": "2017-03-30",
     "nicName": "[concat(parameters('vmName'),'Nic')]",
     "vnetID": "[resourceId(parameters('existingVnetRG'), 'Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]",
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
@@ -142,19 +89,14 @@
     "firstFileName": "[variables('firstFileNameBreakString')[0]]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
-    "windowsOSVersion": "[parameters('vmOSVersion')]",     //    "2016-Datacenter-Server-Core",
-    "initscriptargs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRole \"', parameters('serverRole'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"
-    // "domainJoinAccount": "[concat(parameters('domainUsername'), '@', parameters('userDomain'))]"
-    // NO "prg.ori.local\\user",
-    // "User": "[concat(PRGORILOCAL\\', parameters('domainUsername'))]",
-    // "User": "[concat(parameters('domainUsername'), '@oriflame.com'))]",
-    
+    "windowsOSVersion": "[parameters('vmOSVersion')]",     
+    "initscriptargs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRole \"', parameters('serverRole'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]"   
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('storageAccountName')]",
-      "apiVersion": "2016-01-01",
+      "apiVersion": "[variables('apiVersion')]",
       "sku": {
         "name": "Standard_LRS",
         "tier": "Standard"
@@ -166,7 +108,7 @@
     {
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nicName')]",
-      "apiVersion": "2017-03-01",
+      "apiVersion": "[variables('apiVersion')]",
       "location": "[resourceGroup().location]",
       "tags" : {
           "VM" : "[parameters('vmName')]"  
@@ -186,16 +128,12 @@
       }
     },
     {
-      "type": "Microsoft.Compute/virtualMachines",
-      "identity": { 
-        "type": "systemAssigned"
-      },
-      "name": "[parameters('vmName')]",
-      "apiVersion": "2016-04-30-preview",
-      "location": "[resourceGroup().location]",
-      "tags" : {
-          "VM" : "[parameters('vmName')]"  
-      },      
+      "apiVersion": "[variables('apiVersion')]",
+      "type":       "Microsoft.Compute/virtualMachines",
+      "identity":   { "type": "systemAssigned" },
+      "name":       "[parameters('vmName')]",
+      "location":   "[resourceGroup().location]",
+      "tags" :      { "VM" : "[parameters('vmName')]" },      
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
@@ -214,9 +152,7 @@
           },
           "osDisk": {
             "createOption": "FromImage",
-            "managedDisk": {
-              "storageAccountType": "[parameters('vmOSStorageType')]"
-            }
+            "managedDisk": { "storageAccountType": "[parameters('vmOSStorageType')]" }
           },
           "dataDisks": []
         },
@@ -241,7 +177,7 @@
     {
       "name": "[concat(parameters('vmName'),'/', variables('diagnosticsExtensionName'))]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "2016-04-30-preview",
+      "apiVersion": "[variables('apiVersion')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
@@ -481,20 +417,18 @@
     },
     { 
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(variables('vmName'),'/ManagedIdentityExtensionForWindows')]",
-      "apiVersion": "2016-03-30",
+      "name": "[concat(parameters('vmName'),'/ManagedIdentityExtensionForWindows')]",
+      "apiVersion": "[variables('apiVersion')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
-          "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+          "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
       ],
       "properties": {
           "publisher": "Microsoft.ManagedIdentity",
           "type": "ManagedIdentityExtensionForWindows",
           "typeHandlerVersion": "1.0",
           "autoUpgradeMinorVersion": true,
-          "settings": {
-              "port": 50342
-          },
+          "settings": { "port": 50342 },
           "protectedSettings": {}
       }
     },
