@@ -134,7 +134,7 @@ function Get-Secret( $keyVaultName, $secureName )
                     }
         $KeyVaultToken = (Invoke-RestMethod @authpar).access_token
 
-        $keypar = @{ Uri     = "https://$keyVaultName.vault.azure.net/secrets/$secureName?api-version=2016-10-01"
+        $keypar = @{ Uri     = "https://$keyVaultName.vault.azure.net/secrets/$($secureName)?api-version=2016-10-01"
                      Headers = @{ 'Authorization' = "Bearer $KeyVaultToken" }
                    }
         $secret = (Invoke-RestMethod @keypar).value
