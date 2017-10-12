@@ -125,6 +125,27 @@ function UpdateVault( $setup )
 }
 
 
+function Get-Secret( $keyVaultName, $secureName )
+{
+    try { 
+        $authpar = @{ Uri     = "http://localhost:50342/oauth2/token" 
+                      Body    = @{resource="https://vault.azure.net"}
+                      Headers = @{Metadata="true"}
+                    }
+        $KeyVaultToken = (Invoke-RestMethod @authpar).access_token
+
+        $keypar = @{ Uri     = "https://$keyVaultName.vault.azure.net/secrets/$secureName?api-version=2016-10-01"
+                     Headers = @{ 'Authorization' = "Bearer $KeyVaultToken" }
+                   }
+        $secret = (Invoke-RestMethod @keypar).value
+        LogToFile( "Get-Secret: $secret")
+    }
+    catch {
+        LogToFile( "Get-Secret Error: $_")
+    }
+}
+
+
 
 #start
     LogToFile "Current folder $currentScriptFolder" 
@@ -136,7 +157,7 @@ try
 #region Decode Parameter
     $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
     $setup = @{}
-    (ConvertFrom-Json $setupJson).psobject.properties | Foreach { $setup[$_.Name] = $_.Value }
+    (ConvertFrom-Json $setupJson).psobject.properties | % { $setup[$_.Name] = $_.Value }
 
     #$setup.env=$serverEnv 
     $setup.serverEnv=$serverEnv.ToUpper()
@@ -148,8 +169,10 @@ try
     SelectMostMatchingOnly $setup "BlobStorage" $serverRole
 
     # credentials save
-    UpdateVault $setup
+    # UpdateVault $setup
 
+    Get-Secret -keyVaultName $setup.Vault_Name -secureName "OctopusAPIKey"
+    
     LogToFile "Setup config: $($setup | Out-String)" 
 
     #check mandatory parameters
