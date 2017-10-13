@@ -28,29 +28,20 @@
     "aadGroupScript": { "type": "string",
       "metadata": { "description": "add AAD Group custom script extension" }
     },
-    "aadGroupName": { "type": "string",
-      "metadata": { "description": "Name of AAD Group to be add" }
-    },
-    "aadGroupExec": { "type": "securestring", 
-       "defaultValue": "powershell -ExecutionPolicy Unrestricted -File add-aadGroup.ps1 -groupName \"az-sec-acl-arm-full\" -credB64json eyJ1c2VyIjogImFjbC1hcm0tb3duZXJAT3JpZmxhbWVDb3NtZXRpY3Mub25taWNyb3NvZnQuY29tIiwicGFzc3dvcmQiOiJhY2wtYXJtLW93bmVyMTIzIn0="
-    },
+    // "aadGroupName": { "type": "string",
+    //   "metadata": { "description": "Name of AAD Group to be add" }
+    // },
+    "aadGroupExec": { "type": "securestring"
+       ,"metadata": { "description": "powershell -ExecutionPolicy Unrestricted -File <<nameofps>>.ps1 <<parameters>>"
+    }
 
     
-    "vaultId": { "type": "string",
-      "metadata": { "description": "Azure Vault ID" }
-    }
+    // "vaultId": { "type": "string",
+    //   "metadata": { "description": "Azure Vault ID" }
+    // }
   },
 
   "variables": {
-
-    "credB64json": { 
-      "reference": { "keyVault" : { "id": "[parameters('vaultId')]" },
-                     "secretName": "add-aadGroup"
-      }
-    },
-
-    // "credB64json": "[variables('vaultSecretAddGroupCredentials')))]",
-
     "aadGroupScriptSplit": "[split(parameters('aadGroupScript'), '/')]",
     "aadGroupScriptFirstFileName": "[variables('aadGroupScriptSplit')[sub(length(variables('aadGroupScriptSplit')), 1)]]",
     "aadGroupScriptBreak": "[split(variables('aadGroupScriptFirstFileName'), '?')]",
@@ -86,7 +77,7 @@
           "fileUris": "[split(parameters('aadGroupScript'), ' ')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[variables('credB64json')]"   // "[parameters('aadGroupExec')]"
+          "commandToExecute": "[parameters('aadGroupExec')]"
         }
       },
       "dependsOn": [

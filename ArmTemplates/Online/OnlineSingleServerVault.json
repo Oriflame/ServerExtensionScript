@@ -71,13 +71,13 @@
         "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
     },
 
-    "aadGroupName":       { "type": "string",
-        "metadata": { "description": "target group name and vault secret" }
+    "aadGroupExec":       { "type": "securestring",
+        "metadata": { "description": "add group execution" }
     },
 
-    "vaultId": { "type": "string",
-      "metadata": { "description": "Azure Vault full resource id" }
-    },
+    // "vaultId": { "type": "string",
+    //   "metadata": { "description": "Azure Vault full resource id" }
+    // },
 
     "DiagnosticsStorageAccountName": { "type": "string",
         "metadata": { "description": "Storage account name used for monitoring" }
@@ -96,12 +96,6 @@
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer"
-
-    ,"vaultSecret": { 
-      "reference": { "keyVault" : { "id": "[parameters('vaultId')]" },
-                     "secretName": "[parameters('aadGroupName')]"
-      }
-    },
   },
   "resources": [
     {
@@ -477,10 +471,10 @@
 
           // add-aadGroup
           "aadGroupScript":     {  "value": "[variables('aadGroupScript')]" },
-          "aadGroupName":       {  "value": "[parameters('aadGroupName')]" },
+          "aadGroupExec":       {  "value": "[parameters('aadGroupExec')]" }
 
           // vault
-          "vaultId":            {  "value": "[parameters('vaultId')]" }      
+          //"vaultId":            {  "value": "[parameters('vaultId')]" }      
         }
       },
       "dependsOn": [
