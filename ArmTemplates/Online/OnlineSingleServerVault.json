@@ -96,6 +96,12 @@
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer"
+
+    ,"vaultSecret": { 
+      "reference": { "keyVault" : { "id": "[parameters('vaultId')]" },
+                     "secretName": "[parameters('aadGroupName')]"
+      }
+    },
   },
   "resources": [
     {
@@ -484,17 +490,6 @@
     }
   ],
   "outputs": {
-    "SetupScript": {
-      "type": "object",
-      "value": {
-          "setupscript":"[variables('firstFileName')]",
-          "args":"[variables('initscriptargs')]"
-      }
-    },
-    "ServerSetup": {
-      "type": "string",
-      "value": "[parameters('ServerSetup')]"
-    },
     "VMName": {
       "type" : "string",
 	    "value": "[parameters('vmName')]"
@@ -502,6 +497,10 @@
     "PrivateIPAddress" : {
       "type" : "string",
       "value": "[reference(variables('nicName')).ipConfigurations[0].properties.privateIPAddress]"
-    } 
+    }, 
+    "Secret" : {
+      "type" : "string",
+      "value" : "[variables('vaultSecret')]"
+    }
   }
 }
