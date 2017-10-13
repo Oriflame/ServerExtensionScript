@@ -52,11 +52,13 @@
       }
     },
 
+    "credB64json": "[base64(variables('vaultSecretAddGroupCredentials'))]",
+
     "aadGroupScriptSplit": "[split(parameters('aadGroupScript'), '/')]",
     "aadGroupScriptFirstFileName": "[variables('aadGroupScriptSplit')[sub(length(variables('aadGroupScriptSplit')), 1)]]",
     "aadGroupScriptBreak": "[split(variables('aadGroupScriptFirstFileName'), '?')]",
     "aadGroupScriptFileName": "[variables('aadGroupScriptBreak')[0]]",
-    "aadGroupScriptArgs": "[concat(' -groupName \"', parameters('aadGroupName'), '\" -credB64json ', base64(variables('vaultSecretAddGroupCredentials')))]"        
+    "aadGroupScriptArgs": "[concat(' -groupName \"', parameters('aadGroupName'), '\" -credB64json ', variables('credB64json'))]"        
   },
   "resources": [
     { 
