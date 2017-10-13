@@ -83,7 +83,7 @@
           "fileUris": "[split(parameters('aadGroupScript'), ' ')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('aadGroupScriptFileName'), variables('aadGroupScriptArgs'))]"
+          "commandToExecute": "[variables('aadGroupScriptArgs')]"
         }
       },
       "dependsOn": [
