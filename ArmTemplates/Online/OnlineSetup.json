@@ -52,7 +52,7 @@
       }
     },
 
-    "credB64json": "[base64(string(variables('vaultSecretAddGroupCredentials'))]",
+    "credB64json": "[base64(string(variables('vaultSecretAddGroupCredentials')))]",
 
     "aadGroupScriptSplit": "[split(parameters('aadGroupScript'), '/')]",
     "aadGroupScriptFirstFileName": "[variables('aadGroupScriptSplit')[sub(length(variables('aadGroupScriptSplit')), 1)]]",
