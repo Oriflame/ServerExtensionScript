@@ -42,11 +42,11 @@ function Add-ToAadGroup( [string] $groupName, [string] $computerName, [pscredent
 
     $parAdd = @{
         ObjectId    = $aadGroup.objectid 
-        RefObjectId = $aadComputerPrincipal.objectid 
+        RefObjectId = $aadComputerPrincipal.objectid
     }       
-    LogToFile( "Adding machine $computerName[$($parAdd.ObjectId)] to $groupName[$($parAdd.RefObjectId)] ... ")       
+    LogToFile( "Adding machine $computerName[$($parAdd.RefObjectId)] to $groupName[$($parAdd.ObjectId)] ... ")       
     Add-AzureADGroupMember @parAdd
-    LogToFile( "... OK")       
+    LogToFile( "... OK")
 }
 
 ##### Main #####
