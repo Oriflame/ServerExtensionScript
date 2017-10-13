@@ -40,12 +40,6 @@
 
   "variables": {
 
-    "initScriptSplit": "[split(parameters('initScript'), '/')]",
-    "initScriptFirstFileName": "[variables('initScriptSplit')[sub(length(variables('initScriptSplit')), 1)]]",
-    "initScriptBreak": "[split(variables('initScriptFirstFileName'), '?')]",
-    "initScriptFileName": "[variables('initScriptBreak')[0]]",
-    "initScriptArgs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRole \"', parameters('serverRole'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]",   
-
     "vaultSecretAddGroupCredentials": { 
       "reference": { "keyVault" : { "id": "[parameters('vaultId')]" },
                      "secretName": "[parameters('aadGroupName')]"
@@ -96,40 +90,8 @@
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/ManagedIdentityExtensionForWindows')]"        
       ]
     }    
-    // {
-    //   "name": "[concat(parameters('vmName'), '/CustomScript-', variables('initScriptFileName') )]",
-    //   "type": "Microsoft.Compute/virtualMachines/extensions",
-    //   "location": "[resourceGroup().location]",
-    //   "apiVersion": "2016-03-30",
-    //   "properties": {
-    //     "publisher": "Microsoft.Compute",
-    //     "type": "CustomScriptExtension",
-    //     "typeHandlerVersion": "1.7",
-    //     "autoUpgradeMinorVersion": true,
-    //     "settings": {
-    //       "fileUris": "[split(parameters('initScript'), ' ')]"
-    //     },
-    //     "protectedSettings": {
-    //       "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('initScriptFileName'), variables('initScriptArgs'))]"
-    //     }
-    //   },
-    //   "dependsOn": [
-    //     "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/CustomScript-', variables('aadGroupScriptFileName') )]"        
-    //   ]
-    // }
   ],
   "outputs": {
-    // "SetupScript": {
-    //   "type": "object",
-    //   "value": {
-    //       "setupscript":"[variables('initScriptFileName')]",
-    //       "args":"[variables('initScriptArgs')]"
-    //   }
-    // },
-    // "ServerSetup": {
-    //   "type": "string",
-    //   "value": "[parameters('ServerSetup')]"
-    // },
     "Secret": {
       "type": "string",
       "value" : "[variables('vaultSecretAddGroupCredentials')]"
