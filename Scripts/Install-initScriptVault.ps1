@@ -6,7 +6,8 @@ param
     [Parameter(Mandatory=$false)] [string]$octopusEnv,
     [Parameter(Mandatory=$false)] [string]$octopusRole,
 
-    [Parameter(Mandatory=$true)] [string]$setupB64json
+    [Parameter(Mandatory=$true)] [string]$setupB64json,
+    [Parameter(Mandatory=$true)] [string]$secretB64
 )
 
 #region CONSTANTS
@@ -71,6 +72,7 @@ function RegisterPSModules()
 {
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
     Install-Module CredentialManager -Force     
+    Install-Module AzureAD -Force     
 }
 
 function RegisterLocalVaultKey( $localTargetUrl, $vaultName, $persist = "LocalMachine" )
@@ -124,6 +126,32 @@ function UpdateVault( $setup )
     RegisterLocalVaultKey $vaultURLTarget $vaultName
 }
 
+function Add-ToAadGroup( $groupName, $techAccName, $techAccPwd ) 
+{    
+    try {
+        LogToFile( "Add-ToAadGroup: $groupName, $techAccName")       
+
+        $sb = {  
+            #param( $groupName, $computerName )          
+            $parAdd = @{
+                ObjectId    = (Get-AzureADGroup -SearchString "az-sec-acl-arm-full" ).objectid 
+                RefObjectId = (Get-AzureADServicePrincipal  -SearchString $env:ComputerName).objectid 
+            }    
+            Add-AzureADGroupMember @parAdd
+        }
+    
+        Enable-PSRemoting -Force
+        $credential = New-Object System.Management.Automation.PSCredential @($techAccName, (ConvertTo-SecureString -String $techAccPwd -AsPlainText -Force))
+        
+        LogToFile( "Execute as ... ")       
+        Invoke-Command -Credential $credential -ScriptBlock $sb #-ArgumentList $groupName,$env:ComputerName    
+
+        LogToFile( "... Done")       
+    }
+    catch {
+        LogToFile( "Add-ToAadGroup Error: $_")
+    }
+}
 
 function Get-Secret( $keyVaultName, $secureName )
 {
@@ -170,7 +198,7 @@ try
 
     # credentials save
     # UpdateVault $setup
-
+    Add-ToAadGroup -groupName "az-sec-acl-arm-full" -techAccName "acl-arm-owner" -techAccPwd "acl-arm-owner123"
     Get-Secret -keyVaultName $setup.Vault_Name -secureName "OctopusAPIKey"
     
     LogToFile "Setup config: $($setup | Out-String)" 

@@ -1,0 +1,135 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": { "type": "string",
+        "metadata": { "description": "Name of the VM" }
+    },
+    
+    "initScript": { "type": "string",
+        "metadata": { "description": "init script for custom script extension" }
+    },
+    "serverEnv": { "type": "string",
+        "metadata": { "description": "passed to init script as serverEnv" }
+    },
+    "octopusEnv": { "type": "string",
+        "metadata": { "description": "passed to init script as octopusEnv" }
+    },
+    "serverRole": { "type": "string",
+        "metadata": { "description": "passed to init script as serverRole" }
+    },
+    "octopusRole": { "type": "string",
+        "metadata": { "description": "passed to init script as octopusRole" }
+    },
+    "ServerSetup": { "type": "string",
+        "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
+    },
+
+    "aadGroupScript": { "type": "string",
+      "metadata": { "description": "add AAD Group custom script extension" }
+    },
+    "aadGroupName": { "type": "string",
+      "metadata": { "description": "Name of AAD Group to be add" }
+    },
+
+    
+    "vaultId": { "type": "string",
+      "metadata": { "description": "Azure Vault ID" }
+    }
+  },
+
+  "variables": {
+
+    "initScriptSplit": "[split(parameters('initScript'), '/')]",
+    "initScriptFirstFileName": "[variables('initScriptSplit')[sub(length(variables('initScriptSplit')), 1)]]",
+    "initScriptBreak": "[split(variables('initScriptFirstFileName'), '?')]",
+    "initScriptFileName": "[variables('initScriptBreak')[0]]",
+    "initScriptArgs": "[concat(' -serverEnv \"', parameters('serverEnv'), '\" -octopusEnv \"', parameters('octopusEnv'), '\" -serverRole \"', parameters('serverRole'), '\" -octopusRole \"', parameters('octopusRole'), '\" -setupB64json ', base64(parameters('ServerSetup')))]",   
+
+    "vaultSecretAddGroupCredentials": { 
+      "reference": { "keyVault" : { "id": "[parameters('vaultId')]" },
+                     "secretName": "[parameters('aadGroupName')]"
+      }
+    },
+
+    "aadGroupScriptSplit": "[split(parameters('aadGroupScript'), '/')]",
+    "aadGroupScriptFirstFileName": "[variables('aadGroupScriptSplit')[sub(length(variables('aadGroupScriptSplit')), 1)]]",
+    "aadGroupScriptBreak": "[split(variables('aadGroupScriptFirstFileName'), '?')]",
+    "aadGroupScriptFileName": "[variables('aadGroupScriptBreak')[0]]",
+    "aadGroupScriptArgs": "[concat(' -groupName \"', parameters('aadGroupName'), '\" -credB64json ', base64(variables('vaultSecretAddGroupCredentials')))]"        
+  },
+  "resources": [
+    { 
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'),'/ManagedIdentityExtensionForWindows')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+          "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+      ],
+      "properties": {
+          "publisher": "Microsoft.ManagedIdentity",
+          "type": "ManagedIdentityExtensionForWindows",
+          "typeHandlerVersion": "1.0",
+          "autoUpgradeMinorVersion": true,
+          "settings": { "port": 50342 },
+          "protectedSettings": {}
+      }
+    },
+    {
+      "name": "[concat(parameters('vmName'),'/CustomScript/aadGroup')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.7",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": "[split(parameters('aadGroupScript'), ' ')]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('aadGroupScriptFileName'), variables('aadGroupScriptArgs'))]"
+        }
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'),'/extensions/ManagedIdentityExtensionForWindows')]"        
+      ]
+    },    
+    {
+      "name": "[concat(parameters('vmName'),'/CustomScript/initScript')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.7",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": "[split(parameters('initScript'), ' ')]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('initScriptFileName'), variables('initScriptArgs'))]"
+        }
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'),'/extensions/CustomScript/aadGroup')]"        
+      ]
+    }
+  ],
+  "outputs": {
+    "SetupScript": {
+      "type": "object",
+      "value": {
+          "setupscript":"[variables('firstFileName')]",
+          "args":"[variables('initscriptargs')]"
+      }
+    },
+    "ServerSetup": {
+      "type": "string",
+      "value": "[parameters('ServerSetup')]"
+    }    
+  }
+}
