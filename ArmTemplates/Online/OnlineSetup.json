@@ -31,8 +31,8 @@
     // "aadGroupName": { "type": "string",
     //   "metadata": { "description": "Name of AAD Group to be add" }
     // },
-    "aadGroupExec": { "type": "securestring"
-       ,"metadata": { "description": "powershell -ExecutionPolicy Unrestricted -File <<nameofps>>.ps1 <<parameters>>"
+    "aadGroupExec": { "type": "securestring",
+       "metadata": { "description": "powershell -ExecutionPolicy Unrestricted -File <<nameofps>>.ps1 <<parameters>>" }
     }
 
     
