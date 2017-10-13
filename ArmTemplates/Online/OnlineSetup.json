@@ -31,6 +31,10 @@
     "aadGroupName": { "type": "string",
       "metadata": { "description": "Name of AAD Group to be add" }
     },
+    "aadGroupExec": { "type": "securestring", 
+              "defaultValue": "powershell -ExecutionPolicy Unrestricted -File add-aadGroup.ps1 -groupName "az-sec-acl-arm-full" -credB64json eyJ1c2VyIjogImFjbC1hcm0tb3duZXJAT3JpZmxhbWVDb3NtZXRpY3Mub25taWNyb3NvZnQuY29tIizCoCJwYXNzd29yZCI6ImFjbC1hcm0tb3duZXIxMjMifQ=="
+
+    },
 
     
     "vaultId": { "type": "string",
@@ -83,7 +87,7 @@
           "fileUris": "[split(parameters('aadGroupScript'), ' ')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[variables('credB64json')]"
+          "commandToExecute": "[parameters('aadGroupExec')]"
         }
       },
       "dependsOn": [
