@@ -126,32 +126,7 @@ function UpdateVault( $setup )
     RegisterLocalVaultKey $vaultURLTarget $vaultName
 }
 
-function Add-ToAadGroup( $groupName, $techAccName, $techAccPwd ) 
-{    
-    try {
-        LogToFile( "Add-ToAadGroup: $groupName, $techAccName")       
 
-        $sb = {  
-            #param( $groupName, $computerName )          
-            $parAdd = @{
-                ObjectId    = (Get-AzureADGroup -SearchString "az-sec-acl-arm-full" ).objectid 
-                RefObjectId = (Get-AzureADServicePrincipal  -SearchString $env:ComputerName).objectid 
-            }    
-            Add-AzureADGroupMember @parAdd
-        }
-    
-        Enable-PSRemoting -Force
-        $credential = New-Object System.Management.Automation.PSCredential @($techAccName, (ConvertTo-SecureString -String $techAccPwd -AsPlainText -Force))
-        
-        LogToFile( "Execute as ... ")       
-        Invoke-Command -Credential $credential -ScriptBlock $sb #-ArgumentList $groupName,$env:ComputerName    
-
-        LogToFile( "... Done")       
-    }
-    catch {
-        LogToFile( "Add-ToAadGroup Error: $_")
-    }
-}
 
 function Get-Secret( $keyVaultName, $secureName )
 {
@@ -165,8 +140,7 @@ function Get-Secret( $keyVaultName, $secureName )
         $keypar = @{ Uri     = "https://$keyVaultName.vault.azure.net/secrets/$($secureName)?api-version=2016-10-01"
                      Headers = @{ 'Authorization' = "Bearer $KeyVaultToken" }
                    }
-        $secret = (Invoke-RestMethod @keypar).value
-        LogToFile( "Get-Secret: $secret")
+        (Invoke-RestMethod @keypar).value        
     }
     catch {
         LogToFile( "Get-Secret Error: $_")
@@ -198,9 +172,12 @@ try
 
     # credentials save
     # UpdateVault $setup
-    Add-ToAadGroup -groupName "az-sec-acl-arm-full" -techAccName "acl-arm-owner" -techAccPwd "acl-arm-owner123"
-    Get-Secret -keyVaultName $setup.Vault_Name -secureName "OctopusAPIKey"
-    
+    Add-ToAadGroup -groupName $groupName -techAccName $techAccount.user -techAccPwd $techAccount.password
+
+    $groupName = "az-sec-acl-arm-full"
+    $techAccount = Get-Secret -keyVaultName $setup.Vault_Name -secureName $groupName | ConvertFrom-Json
+    # "acl-arm-owner@OriflameCosmetics.onmicrosoft.com" -techAccPwd "acl-arm-owner123"
+        
     LogToFile "Setup config: $($setup | Out-String)" 
 
     #check mandatory parameters
