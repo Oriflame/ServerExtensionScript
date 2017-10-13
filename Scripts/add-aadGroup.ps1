@@ -53,6 +53,8 @@ function Add-ToAadGroup( [string] $groupName, [string] $computerName, [pscredent
 
 try {
     LogToFile( "[$scriptName] Started: ... ")
+    LogToFile( "Par: $credB64json")
+    
     $techAccount = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($credB64json)) | 
                         ConvertFrom-Json
     

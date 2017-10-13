@@ -40,13 +40,13 @@
 
   "variables": {
 
-    "vaultSecretAddGroupCredentials": { 
+    "credB64json": { 
       "reference": { "keyVault" : { "id": "[parameters('vaultId')]" },
                      "secretName": "[parameters('aadGroupName')]"
       }
     },
 
-    "credB64json": "[base64(string(variables('vaultSecretAddGroupCredentials')))]",
+    // "credB64json": "[variables('vaultSecretAddGroupCredentials')))]",
 
     "aadGroupScriptSplit": "[split(parameters('aadGroupScript'), '/')]",
     "aadGroupScriptFirstFileName": "[variables('aadGroupScriptSplit')[sub(length(variables('aadGroupScriptSplit')), 1)]]",
@@ -90,11 +90,5 @@
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/ManagedIdentityExtensionForWindows')]"        
       ]
     }    
-  ],
-  "outputs": {
-    "Secret": {
-      "type": "string",
-      "value" : "[variables('vaultSecretAddGroupCredentials')]"
-    }    
-  }
+  ]
 }
