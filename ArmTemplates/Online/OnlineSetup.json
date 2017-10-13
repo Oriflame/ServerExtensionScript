@@ -79,7 +79,7 @@
       }
     },
     {
-      "name": "[concat(parameters('vmName'),'/CustomScript/aadGroup')]",
+      "name": "[concat(parameters('vmName'),'/CustomScript-', variables('aadGroupScriptFileName') )]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
@@ -100,7 +100,7 @@
       ]
     },    
     {
-      "name": "[concat(parameters('vmName'),'/CustomScript/initScript')]",
+      "name": "[concat(parameters('vmName'),'/CustomScript-', variables('initScriptFileName') )]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
