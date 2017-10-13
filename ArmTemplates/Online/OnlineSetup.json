@@ -79,7 +79,7 @@
       }
     },
     {
-      "name": "[concat(parameters('vmName'),'/CustomScript-', variables('aadGroupScriptFileName') )]",
+      "name": "[concat(parameters('vmName'), '/CustomScript-', variables('aadGroupScriptFileName') )]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
@@ -96,11 +96,11 @@
         }
       },
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'),'/extensions/ManagedIdentityExtensionForWindows')]"        
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/ManagedIdentityExtensionForWindows')]"        
       ]
     },    
     {
-      "name": "[concat(parameters('vmName'),'/CustomScript-', variables('initScriptFileName') )]",
+      "name": "[concat(parameters('vmName'), '/CustomScript-', variables('initScriptFileName') )]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[resourceGroup().location]",
       "apiVersion": "2016-03-30",
@@ -117,7 +117,7 @@
         }
       },
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'),'/extensions/CustomScript/aadGroup')]"        
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/CustomScript-', variables('aadGroupScriptFileName') )]"        
       ]
     }
   ],
