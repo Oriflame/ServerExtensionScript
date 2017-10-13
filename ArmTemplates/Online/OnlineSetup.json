@@ -95,28 +95,28 @@
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/ManagedIdentityExtensionForWindows')]"        
       ]
-    },    
-    {
-      "name": "[concat(parameters('vmName'), '/CustomScript-', variables('initScriptFileName') )]",
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "location": "[resourceGroup().location]",
-      "apiVersion": "2016-03-30",
-      "properties": {
-        "publisher": "Microsoft.Compute",
-        "type": "CustomScriptExtension",
-        "typeHandlerVersion": "1.7",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "fileUris": "[split(parameters('initScript'), ' ')]"
-        },
-        "protectedSettings": {
-          "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('initScriptFileName'), variables('initScriptArgs'))]"
-        }
-      },
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/CustomScript-', variables('aadGroupScriptFileName') )]"        
-      ]
-    }
+    }    
+    // {
+    //   "name": "[concat(parameters('vmName'), '/CustomScript-', variables('initScriptFileName') )]",
+    //   "type": "Microsoft.Compute/virtualMachines/extensions",
+    //   "location": "[resourceGroup().location]",
+    //   "apiVersion": "2016-03-30",
+    //   "properties": {
+    //     "publisher": "Microsoft.Compute",
+    //     "type": "CustomScriptExtension",
+    //     "typeHandlerVersion": "1.7",
+    //     "autoUpgradeMinorVersion": true,
+    //     "settings": {
+    //       "fileUris": "[split(parameters('initScript'), ' ')]"
+    //     },
+    //     "protectedSettings": {
+    //       "commandToExecute": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('initScriptFileName'), variables('initScriptArgs'))]"
+    //     }
+    //   },
+    //   "dependsOn": [
+    //     "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'), '/extensions/CustomScript-', variables('aadGroupScriptFileName') )]"        
+    //   ]
+    // }
   ],
   "outputs": {
     "SetupScript": {
@@ -129,6 +129,10 @@
     "ServerSetup": {
       "type": "string",
       "value": "[parameters('ServerSetup')]"
+    },
+    "Secret": {
+      "type": "string",
+      "value" : "[variables('vaultSecretAddGroupCredentials')]"
     }    
   }
 }
