@@ -70,7 +70,7 @@
     "ServerSetup": { "type": "string",
         "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
     },
-    
+
     "aadGroupName":       { "type": "string",
         "metadata": { "description": "target group name and vault secret" }
     },
@@ -453,7 +453,7 @@
       "name": "[concat(deployment().name, '-onlinesetup)')]",
       "type": "Microsoft.Resources/deployments",
       "properties": {
-        "mode": "Complete",
+        "mode": "Incremental",
         "templateLink": {
           "uri": "[variables('OnlineSetupLink')]",
           "contentVersion": "1.0.0.0"
