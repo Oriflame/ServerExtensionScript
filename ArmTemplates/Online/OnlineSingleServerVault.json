@@ -87,7 +87,7 @@
   "variables": {
     "ServerExtension": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/",    
     "OnlineSetupLink": "[concat( variables('ServerExtension'), 'ArmTemplates/Online/OnlineSetup.json')]",    
-    "AadGroupScript" : "[concat( variables('ServerExtension'), 'ArmTemplates/Scripts/add-aadGroup.ps1')]",    
+    "AadGroupScript" : "[concat( variables('ServerExtension'), 'Scripts/add-aadGroup.ps1')]",    
     "storageAccountName": "[parameters('DiagnosticsStorageAccountName')]",
     "diagnosticsStorageAccountId": "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
     "diagnosticsExtensionName": "IaaSDiagnostics",
