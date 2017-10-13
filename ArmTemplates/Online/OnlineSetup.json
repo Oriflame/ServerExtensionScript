@@ -119,17 +119,17 @@
     // }
   ],
   "outputs": {
-    "SetupScript": {
-      "type": "object",
-      "value": {
-          "setupscript":"[variables('initScriptFileName')]",
-          "args":"[variables('initScriptArgs')]"
-      }
-    },
-    "ServerSetup": {
-      "type": "string",
-      "value": "[parameters('ServerSetup')]"
-    },
+    // "SetupScript": {
+    //   "type": "object",
+    //   "value": {
+    //       "setupscript":"[variables('initScriptFileName')]",
+    //       "args":"[variables('initScriptArgs')]"
+    //   }
+    // },
+    // "ServerSetup": {
+    //   "type": "string",
+    //   "value": "[parameters('ServerSetup')]"
+    // },
     "Secret": {
       "type": "string",
       "value" : "[variables('vaultSecretAddGroupCredentials')]"
