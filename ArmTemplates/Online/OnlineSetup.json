@@ -86,7 +86,7 @@
           "fileUris": "[split(parameters('aadGroupScript'), ' ')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[parameters('aadGroupExec')]"
+          "commandToExecute": "[variables('credB64json')]"   // "[parameters('aadGroupExec')]"
         }
       },
       "dependsOn": [
