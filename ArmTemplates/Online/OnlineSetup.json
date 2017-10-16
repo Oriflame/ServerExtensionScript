@@ -6,39 +6,13 @@
         "metadata": { "description": "Name of the VM" }
     },
     
-    "initScript": { "type": "string",
-        "metadata": { "description": "init script for custom script extension" }
-    },
-    "serverEnv": { "type": "string",
-        "metadata": { "description": "passed to init script as serverEnv" }
-    },
-    "octopusEnv": { "type": "string",
-        "metadata": { "description": "passed to init script as octopusEnv" }
-    },
-    "serverRole": { "type": "string",
-        "metadata": { "description": "passed to init script as serverRole" }
-    },
-    "octopusRole": { "type": "string",
-        "metadata": { "description": "passed to init script as octopusRole" }
-    },
-    "ServerSetup": { "type": "string",
-        "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
-    },
-
     "aadGroupScript": { "type": "string",
       "metadata": { "description": "add AAD Group custom script extension" }
     },
-    // "aadGroupName": { "type": "string",
-    //   "metadata": { "description": "Name of AAD Group to be add" }
-    // },
+
     "aadGroupExec": { "type": "securestring",
        "metadata": { "description": "powershell -ExecutionPolicy Unrestricted -File <<nameofps>>.ps1 <<parameters>>" }
-    }
-
-    
-    // "vaultId": { "type": "string",
-    //   "metadata": { "description": "Azure Vault ID" }
-    // }
+    }    
   },
 
   "variables": {
@@ -46,7 +20,6 @@
     "aadGroupScriptFirstFileName": "[variables('aadGroupScriptSplit')[sub(length(variables('aadGroupScriptSplit')), 1)]]",
     "aadGroupScriptBreak": "[split(variables('aadGroupScriptFirstFileName'), '?')]",
     "aadGroupScriptFileName": "[variables('aadGroupScriptBreak')[0]]"
-    // "aadGroupScriptArgs": "[concat(' -groupName \"', parameters('aadGroupName'), '\" -credB64json ', variables('credB64json'))]"        
   },
   "resources": [
     { 
