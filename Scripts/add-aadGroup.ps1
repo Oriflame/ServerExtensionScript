@@ -3,8 +3,6 @@ param
 (
     [Parameter(Mandatory=$true)] [string]$groupName,
     [Parameter(Mandatory=$true)] [string] $credB64json
-    # [Parameter(Mandatory=$true)] [string]$techName,
-    # [Parameter(Mandatory=$true)] [string]$techPassword
 )
 
 #region CONSTANTS
@@ -53,14 +51,14 @@ function Add-ToAadGroup( [string] $groupName, [string] $computerName, [pscredent
 
 try {
     LogToFile( "[$scriptName] Started: ... ")
-    LogToFile( "Par: $credB64json")
+    #LogToFile( "Par: $credB64json")
     
     $techAccount = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($credB64json)) | 
                         ConvertFrom-Json
     
     if ( !$techAccount.User -or !$techAccount.Password )
     {
-        throw "Missing mandatory credentials parameters"
+        throw "Missing mandatory credential parameters"
     }
 
     RegisterPSModules    

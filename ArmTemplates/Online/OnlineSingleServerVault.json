@@ -12,6 +12,21 @@
         "metadata": { "description": "Existing subnet that contains the domain controller" }
     },
 
+    // values stored as tag of server
+    "tagServerEnv": { "type": "string",
+      "metadata": { "description": "value of ServerEnv tag" }
+    },
+    "tagOctopusEnv": { "type": "string",
+      "metadata": { "description": "value of OctopusEnv tag" }
+    },
+    "tagServerRole": { "type": "string",
+      "metadata": { "description": "value of ServerRole tag" }
+    },
+    "tagOctopusRole": { "type": "string",
+      "metadata": { "description": "value of OctopusRole tag" }
+    },
+
+
     "vmName": { "type": "string",
         "metadata": { "description": "Name of the VM" }
     },
@@ -52,32 +67,9 @@
         "metadata": { "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx" }
     },
     
-    "initScript": { "type": "string",
-        "metadata": { "description": "init script for custom script extension" }
-    },
-    "serverEnv": { "type": "string",
-        "metadata": { "description": "passed to init script as serverEnv" }
-    },
-    "octopusEnv": { "type": "string",
-        "metadata": { "description": "passed to init script as octopusEnv" }
-    },
-    "serverRole": { "type": "string",
-        "metadata": { "description": "passed to init script as serverRole" }
-    },
-    "octopusRole": { "type": "string",
-        "metadata": { "description": "passed to init script as octopusRole" }
-    },
-    "ServerSetup": { "type": "string",
-        "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
-    },
-
     "aadGroupExec":       { "type": "securestring",
         "metadata": { "description": "add group execution" }
     },
-
-    // "vaultId": { "type": "string",
-    //   "metadata": { "description": "Azure Vault full resource id" }
-    // },
 
     "DiagnosticsStorageAccountName": { "type": "string",
         "metadata": { "description": "Storage account name used for monitoring" }
@@ -138,7 +130,13 @@
       "identity":   { "type": "systemAssigned" },
       "name":       "[parameters('vmName')]",
       "location":   "[resourceGroup().location]",
-      "tags" :      { "VM" : "[parameters('vmName')]" },      
+      "tags" :      { 
+        "VMName"     : "[parameters('vmName')]",
+        "ServerEnv"  : "[parameters('tagServerEnv')]",
+        "OctopusEnv" : "[parameters('tagOctopusEnv')]",
+        "ServerRole" : "[parameters('tagServerRole')]",
+        "OctopusRole": "[parameters('tagOctopusRole')]"
+      },      
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
@@ -460,21 +458,9 @@
         },
         "parameters": {
           "vmName":             { "value": "[parameters('vmName')]" },
-
-          // "initServer
-          "initScript":         { "value": "[parameters('initScript')]" },
-          "octopusEnv":         { "value": "[parameters('octopusEnv')]" },
-          "serverEnv":          { "value": "[parameters('serverEnv')]" },
-          "octopusRole":        { "value": "[parameters('octopusRole')]" },
-          "serverRole":         { "value": "[parameters('serverRole')]" },
-          "ServerSetup":        { "value": "[parameters('ServerSetup')]" },
-
-          // add-aadGroup
-          "aadGroupScript":     {  "value": "[variables('aadGroupScript')]" },
-          "aadGroupExec":       {  "value": "[parameters('aadGroupExec')]" }
-
-          // vault
-          //"vaultId":            {  "value": "[parameters('vaultId')]" }      
+          // add-aadGroup - execution must be aligned with the scripting
+          "aadGroupScript":     { "value": "[variables('aadGroupScript')]" },
+          "aadGroupExec":       { "value": "[parameters('aadGroupExec')]" }   
         }
       },
       "dependsOn": [
