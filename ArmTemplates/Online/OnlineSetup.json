@@ -5,11 +5,7 @@
     "vmName": { "type": "string",
         "metadata": { "description": "Name of the VM" }
     },
-    
-    "aadGroupScript": { "type": "string",
-      "metadata": { "description": "add AAD Group custom script extension" }
-    },
-
+        
     "aadGroupExec": { "type": "securestring",
        "metadata": { "description": "powershell -ExecutionPolicy Unrestricted -File <<nameofps>>.ps1 <<parameters>>" }
     }    

@@ -9,7 +9,7 @@
     "vmNameBase":         { "type": "string" },
     "vmSize":             { "type": "string" },
     "vmOSStorageType":    { "type": "string" },
-    "vmOSVersion":        { "type": "string", "defaultValue": "2016-Datacenter-Server-Core" },
+    "vmOSVersion":        { "type": "string" },
 
     "vmAdminUsername":    { "type": "string" },
     "vmAdminPassword":    { "type": "securestring" },
@@ -23,12 +23,15 @@
     "domainJoinOuPath":   { "type": "string" },
     "domainJoinOptions":  { "type": "int", "defaultValue": 3 },
 
-    // "initScript":         { "type": "string" },
-    "tagServerEnv":          { "type": "string" },
-    "tagOctopusEnv":         { "type": "string" },
-    "tagServerRole":         { "type": "string" },
-    "tagOctopusRole":        { "type": "string" },
-    // "ServerSetup":        { "type": "string" },
+    // "initScript":      { "type": "string" },
+    "tagServerEnv":       { "type": "string" },
+    "tagOctopusEnv":      { "type": "string" },
+    "tagServerRole":      { "type": "string" },
+    "tagOctopusRole":     { "type": "string" },
+    // "ServerSetup":     { "type": "string" },
+
+    "aadGroupExec":       { "type": "securestring" },
+    "aadGroupScript" :    { "type": "string" }, 
 
     "DiagnosticsStorageAccountName": { "type": "string" }
   },
@@ -72,6 +75,10 @@
           "tagOctopusEnv":        { "value": "[parameters('tagOctopusEnv')]" },
           "tagServerRole":        { "value": "[parameters('tagServerRole')]" },
           "tagOctopusRole":       { "value": "[parameters('tagOctopusRole')]" },
+
+          "aadGroupExec":         { "value": "[parameters('aadGroupExec')]" },
+          "aadGroupScript":       { "value": "[parameters('aadGroupScript')]" },
+
           // "initScript":           { "value": "[parameters('initScript')]" },
           // "ServerSetup":          { "value": "[parameters('ServerSetup')]" },
           "DiagnosticsStorageAccountName": { "value": "[parameters('DiagnosticsStorageAccountName')]"}
