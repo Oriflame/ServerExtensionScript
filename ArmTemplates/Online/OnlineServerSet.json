@@ -5,7 +5,8 @@
     "existingVNETName":   { "type": "string" },
     "existingVnetRG":     { "type": "string" },
     "existingSubnetName": { "type": "string" },
-    "vmName":             { "type": "string" },
+
+    "vmNameBase":         { "type": "string" },
     "vmSize":             { "type": "string" },
     "vmOSStorageType":    { "type": "string" },
     "vmOSVersion":        { "type": "string", "defaultValue": "2016-Datacenter-Server-Core" },
@@ -20,19 +21,18 @@
     "domainJoinToDomain": { "type": "string" },
     "domainJoinPassword": { "type": "securestring" },
     "domainJoinOuPath":   { "type": "string" },
-    "domainJoinOptions":  { "type": "int" },
+    "domainJoinOptions":  { "type": "int", "defaultValue": 3 },
 
-    "initScript":         { "type": "string" },
-    "serverEnv":          { "type": "string" },
-    "octopusEnv":         { "type": "string" },
-    "serverRole":         { "type": "string" },
-    "octopusRole":        { "type": "string" },
-    "ServerSetup":        { "type": "string" },
+    // "initScript":         { "type": "string" },
+    "tagServerEnv":          { "type": "string" },
+    "tagOctopusEnv":         { "type": "string" },
+    "tagServerRole":         { "type": "string" },
+    "tagOctopusRole":        { "type": "string" },
+    // "ServerSetup":        { "type": "string" },
+
     "DiagnosticsStorageAccountName": { "type": "string" }
   },
-  "variables": {
-    "templatelink": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
-  },
+  "variables": {  },
   "resources": [
     {
       "apiVersion": "2015-01-01",
@@ -47,36 +47,47 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('templatelink')]",
+          "uri": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
           "existingVNETName":     { "value": "[parameters('existingVNETName')]" },
           "existingVnetRG":       { "value": "[parameters('existingVnetRG')]" },
           "existingSubnetName":   { "value": "[parameters('existingSubnetName')]" },
-          "vmName":               { "value": "[concat(parameters('vmName'), padLeft(copyIndex(parameters('idFirst')), 2, '0'))]"  },
+          
+          "vmName":               { "value": "[concat(parameters('vmNameBase'), padLeft(copyIndex(parameters('idFirst')), 2, '0'))]"  },
           "vmSize":               { "value": "[parameters('vmSize')]" },
           "vmOSStorageType":      { "value": "[parameters('vmOSStorageType')]" },
           "vmOSVersion":          { "value": "[parameters('vmOSVersion')]" },
           "vmAdminUsername":      { "value": "[parameters('vmAdminUsername')]" },
           "vmAdminPassword":      { "value": "[parameters('vmAdminPassword')]" },
-          
-          
+                    
           "domainJoinToDomain":   { "value": "[parameters('domainJoinToDomain')]" },
           "domainJoinAccount":    { "value": "[parameters('domainJoinAccount')]" },
           "domainJoinPassword":   { "value": "[parameters('domainJoinPassword')]" },
           "domainJoinOuPath":     { "value": "[parameters('domainJoinOuPath')]" },
           "domainJoinOptions":    { "value": "[parameters('domainJoinOptions')]" },
 
-          "serverEnv":            { "value": "[parameters('serverEnv')]" },
-          "octopusEnv":           { "value": "[parameters('octopusEnv')]" },
-          "serverRole":           { "value": "[parameters('serverRole')]" },
-          "octopusRole":          { "value": "[parameters('octopusRole')]" },
-          "initScript":           { "value": "[parameters('initScript')]" },
-          "ServerSetup":          { "value": "[parameters('ServerSetup')]" },
+          "tagServerEnv":         { "value": "[parameters('tagServerEnv')]" },
+          "tagOctopusEnv":        { "value": "[parameters('tagOctopusEnv')]" },
+          "tagServerRole":        { "value": "[parameters('tagServerRole')]" },
+          "tagOctopusRole":       { "value": "[parameters('tagOctopusRole')]" },
+          // "initScript":           { "value": "[parameters('initScript')]" },
+          // "ServerSetup":          { "value": "[parameters('ServerSetup')]" },
           "DiagnosticsStorageAccountName": { "value": "[parameters('DiagnosticsStorageAccountName')]"}
         }
       }
     }
-  ]
+  ],
+  "outputs": {
+    // https://github.com/rjmax/ArmExamples/blob/master/NestedTemplateInline.json
+    //  "vmNames": {
+    //    "type": "array",
+    //    "copy": [{
+    //      "name": "vmName",
+    //      "count": 2,
+    //      "input": { "innerValue": "[copyIndex('vmName')]" }
+    //    }]
+    //  }
+  }
 }

@@ -67,7 +67,12 @@
         "metadata": { "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx" }
     },
     
-    "aadGroupExec":       { "type": "securestring",
+    "aadGroupScript" : { "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/Scripts/add-aadGroup.ps1",
+      "metadata": { "description": "Uri of custom script extension file." }  
+    },
+    "aadGroupExec": { "type": "securestring",
+        "defaultValue": "",
         "metadata": { "description": "add group execution" }
     },
 
@@ -77,9 +82,6 @@
   },
 
   "variables": {
-    "ServerExtension": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/",    
-    "OnlineSetupLink": "[concat( variables('ServerExtension'), 'ArmTemplates/Online/OnlineSetup.json')]",    
-    "AadGroupScript" : "[concat( variables('ServerExtension'), 'Scripts/add-aadGroup.ps1')]",    
     "storageAccountName": "[parameters('DiagnosticsStorageAccountName')]",
     "diagnosticsStorageAccountId": "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
     "diagnosticsExtensionName": "IaaSDiagnostics",
@@ -131,7 +133,7 @@
       "name":       "[parameters('vmName')]",
       "location":   "[resourceGroup().location]",
       "tags" :      { 
-        "VMName"     : "[parameters('vmName')]",
+        "Deployment" : "[deployment().Name]",
         "ServerEnv"  : "[parameters('tagServerEnv')]",
         "OctopusEnv" : "[parameters('tagOctopusEnv')]",
         "ServerRole" : "[parameters('tagServerRole')]",
@@ -450,16 +452,17 @@
       "apiVersion": "2015-01-01",
       "name": "[concat(deployment().name, '-onlinesetup)')]",
       "type": "Microsoft.Resources/deployments",
+      "condition": "[greater(length(parameters('aadGroupScript')), 0)]",
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "[variables('OnlineSetupLink')]",
+          "uri": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSetup.json",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
           "vmName":             { "value": "[parameters('vmName')]" },
           // add-aadGroup - execution must be aligned with the scripting
-          "aadGroupScript":     { "value": "[variables('aadGroupScript')]" },
+          "aadGroupScript":     { "value": "[parameters('aadGroupScript')]" },
           "aadGroupExec":       { "value": "[parameters('aadGroupExec')]" }   
         }
       },
