@@ -5,10 +5,14 @@
     "vmName": { "type": "string",
         "metadata": { "description": "Name of the VM" }
     },
-        
+
+    "aadGroupScript": { "type": "string",
+      "metadata": { "description": "URL PS script whi is executed by command specified in <<aadGroupExec>>" }
+    },
+
     "aadGroupExec": { "type": "securestring",
        "metadata": { "description": "powershell -ExecutionPolicy Unrestricted -File <<nameofps>>.ps1 <<parameters>>" }
-    }    
+    }
   },
 
   "variables": {
