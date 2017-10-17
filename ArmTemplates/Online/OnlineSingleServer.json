@@ -450,7 +450,7 @@
 
     {
       "apiVersion": "2015-01-01",
-      "name": "[concat(deployment().name, '-onlinesetup)')]",
+      "name": "[concat(deployment().name, '-AAD)')]",
       "type": "Microsoft.Resources/deployments",
       "condition": "[greater(length(parameters('aadGroupScript')), 0)]",
       "properties": {
