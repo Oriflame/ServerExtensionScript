@@ -10,7 +10,7 @@ param
 )
 
 #region CONSTANTS
-    $logDir = "C:\logs"
+    $logDir = "C:\logs\ARM"
     $oselDir = "c:\OSEL"
     $setupScript = "$oselDir\StandAloneScripts\ServerSetup\init-server.ps1"
     $rootStgContainer = "https://oriflamestorage.blob.core.windows.net/onlineassets"
@@ -20,7 +20,7 @@ param
 
 
 #logging preparation
-    if (!(test-path $logDir)) { mkdir $logDirs | Out-Null }
+    if (!(test-path $logDir)) { mkdir $logDir | Out-Null }
 
     $scriptName = [System.IO.Path]::GetFileNameWithoutExtension($MyInvocation.MyCommand.Definition)
     $currentScriptFolder = [System.IO.Path]::GetDirectoryName($MyInvocation.MyCommand.Definition)
@@ -80,6 +80,7 @@ try
     LogToFile "Setup config: $($setup | Out-String)" 
 
     #check mandatory parameters
+    
     if ( !$setup.serverEnv -or !$setup.SASToken )
     {
         throw "Mandatory parameters 'serverEnv' or 'SASToken' are not provided."

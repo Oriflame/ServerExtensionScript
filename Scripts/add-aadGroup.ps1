@@ -6,8 +6,11 @@ param
 )
 
 #region CONSTANTS
-    $scriptName = ([System.IO.FileInfo]$MyInvocation.MyCommand.Definition).BaseName
-    $logFile = "C:\logs\$scriptName.txt"
+    $logDir = "C:\logs\ARM"
+    if (!(test-path $logDir)) { mkdir $logDir | Out-Null }
+
+    $scriptName = ([System.IO.FileInfo]$MyInvocation.MyCommand.Definition).BaseName    
+    $logFile = "$logDir\$scriptName.txt"
 #endregion
 
 #region Logging
