@@ -53,7 +53,7 @@ function Get-ARMContainer( $vaultName, $secretName )
     LogToFile "Secret '$secretName' ... $([bool]$secret)"
     if ( $secret )
     {
-        return $secret.Value
+        return $secret.Value | ConvertFrom-Json
     }
 }
 
@@ -96,13 +96,14 @@ try
     # netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
 
 #download resource storage
-    $url = "$($setup.RootStgContainer)/$($setup.serverEnv)/$oselRes"
+    $url = ($setup.RootStgContainer, $setup.serverEnv, $oselRes) -join "/"
+    $oselZip = "$oselDir\$oselRes"
     LogToFile "downloading OSEL: $url" 
-    (New-Object System.Net.WebClient).DownloadFile("$url$($setup.SASToken)", "$oselDir\$oselRes")
+    (New-Object System.Net.WebClient).DownloadFile("$url$($setup.SASToken)", $oselZip )
 
 #unzip
     LogToFile "unziping OSEL to [$oselDir]"   
-    [System.IO.Compression.ZipFile]::ExtractToDirectory("$oselDir\$oselRes", $oselDir)
+    [System.IO.Compression.ZipFile]::ExtractToDirectory($oselZip, $oselDir)
 
 #exec init-server    
     LogToFile "starting OSEL => .\$(Split-Path $setupScript -Leaf) -step new-server" 
