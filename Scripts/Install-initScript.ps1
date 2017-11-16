@@ -13,9 +13,9 @@ param
     $logDir = "C:\logs\ARM"
     $oselDir = "c:\OSEL"
     $setupScript = "$oselDir\StandAloneScripts\ServerSetup\init-server.ps1"
-    $rootStgContainer = "https://oriflamestorage.blob.core.windows.net/onlineassets"
+    #$rootStgContainer = "https://oriflamestorage.blob.core.windows.net/onlineassets"
     $oselRes = "osel.zip"
-    $cfgJson = "config.json"
+    #$cfgJson = "config.json"
 #endregion
 
 
@@ -32,29 +32,32 @@ function LogToFile( [string] $text )
     "$($date): $text" | Out-File $logFile -Append
 }
 
-function SelectMostMatchingOnly( $dict, $key, $suffix )
+function Get-ARMContainer( $vaultName, $secretName )
 {
-    $bestkey = "$key-$suffix" #shared pattern
-    LogToFile "Key=$key, Sfx=$suffix, Best=$bestkey"
-    LogToFile "Dict=$dict"
-    
-    LogToFile "Looking for [$bestkey]"
-    if ( $dict.Contains($bestkey) ) 
-    {
-        LogToFile "Specific key found [$bestkey]: $($dict[$bestkey])"
-        LogToFile "Replacing value [$key]: $($dict[$key])"
-        $dict[$key] = $dict[$bestkey]
-    } else {
-        LogToFile "Common key used [$key]:  $($dict[$key])"
-    }
+    # get OAuth token
+	$authpar = @{ Uri     = "http://localhost:50342/oauth2/token" 
+                  Body    = @{resource="https://vault.azure.net"}
+                  Headers = @{Metadata="true"}
+                }
+    $token = (Invoke-RestMethod @authpar).access_token
+    LogToFile "Token $([bool]$token)"
 
-    #remove all 
-    $toremove = $dict.Keys | ?{ $_ -like "$key-*" }
-    $toremove | %{ 
-            LogToFile "Removing [$_]"
-            $dict.Remove($_) 
-        }
+    # get Vault Secret
+    
+    $kvpar = @{
+        uri = "https://$vaultName.vault.azure.net/secrets/$($secretName)?api-version=2016-10-01"	   
+        Headers = @{Authorization="Bearer $token"} 						      
+    }
+    
+    $secret = (Invoke-RestMethod @kvpar)
+    LogToFile "Secret '$secretName' ... $([bool]$secret)"
+    if ( $secret )
+    {
+        return $secret.Value
+    }
 }
+
+
 
 #start
     LogToFile "Current folder $currentScriptFolder" 
@@ -65,44 +68,35 @@ try
 
 #region Decode Parameter
     $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
-    $setup = @{}
-    (ConvertFrom-Json $setupJson).psobject.properties | Foreach { $setup[$_.Name] = $_.Value }
+    $setup = @{
+        ServerEnv=$serverEnv.ToUpper()
+    }
+    (ConvertFrom-Json $setupJson).psobject.properties | %{ $setup[$_.Name] = $_.Value }
+#endregion (decode)
 
-    #$setup.env=$serverEnv 
-    $setup.serverEnv=$serverEnv.ToUpper()
-    $setup.octopusEnv=$octopusEnv 
-    $setup.serverRole=$serverRole.ToLower()
-    $setup.octopusRole=$octopusRole 
-
-    #select valid BlobStorage
-    SelectMostMatchingOnly $setup "BlobStorage" $serverRole
-
-    LogToFile "Setup config: $($setup | Out-String)" 
-
-    #check mandatory parameters
-    
-    if ( !$setup.serverEnv -or !$setup.SASToken )
+#region obtain secrets    
+    if ( !$setup.VaultName -or !$setup.SecretName -or !$setup.ServerEnv )
     {
-        throw "Mandatory parameters 'serverEnv' or 'SASToken' are not provided."
+        throw "Mandatory parameters: ['VaultName', 'ServerEnv'] are not provided."
     }
 
-#endregion
+    $armcontainer = Get-ARMContainer -vaultName $setup.VaultName -secretName $setup.SecretName
+    if ( !$armcontainer )
+    {
+        throw "SAS token not found - check [$($setup.VaultName) >> $($setup.SecretName)] for apropriate secret."
+    }
 
+    $setup.RootStgContainer = $armcontainer.Uri
+    $setup.SasToken = $armcontainer.SAS
+#endregion (secrets)  
 
 
 #enable samba    
     # LogToFile "Enabling Samba" 
     # netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
 
-#persist parameters in the Osel Dir
-    if (!(test-path $oselDir)) {mkdir $oselDir }
-    LogToFile "saving parameters as config file $oselDir\$cfgJson" 
-    $setup | 
-        ConvertTo-Json | 
-        Out-File "$oselDir\$cfgJson"
-
 #download resource storage
-    $url = "$rootStgContainer/$($setup.serverEnv)/$oselRes"
+    $url = "$($setup.RootStgContainer)/$($setup.serverEnv)/$oselRes"
     LogToFile "downloading OSEL: $url" 
     (New-Object System.Net.WebClient).DownloadFile("$url$($setup.SASToken)", "$oselDir\$oselRes")
 
