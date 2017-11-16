@@ -25,6 +25,7 @@
 
     // "initScript":      { "type": "string" },
     "tagServerEnv":       { "type": "string" },
+    "tagServerRegion":    { "type": "string" },
     "tagOctopusEnv":      { "type": "string" },
     "tagServerRole":      { "type": "string" },
     "tagOctopusRole":     { "type": "string" },
@@ -72,6 +73,7 @@
           "domainJoinOptions":    { "value": "[parameters('domainJoinOptions')]" },
 
           "tagServerEnv":         { "value": "[parameters('tagServerEnv')]" },
+          "tagServerRegion":      { "value": "[parameters('tagServerRegion')]" },
           "tagOctopusEnv":        { "value": "[parameters('tagOctopusEnv')]" },
           "tagServerRole":        { "value": "[parameters('tagServerRole')]" },
           "tagOctopusRole":       { "value": "[parameters('tagOctopusRole')]" },

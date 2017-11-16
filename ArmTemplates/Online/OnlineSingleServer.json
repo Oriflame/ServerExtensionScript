@@ -16,6 +16,9 @@
     "tagServerEnv": { "type": "string",
       "metadata": { "description": "value of ServerEnv tag" }
     },
+    "tagServerRegion": { "type": "string",
+      "metadata": { "description": "value of ServerRegion tag" }
+    },    
     "tagOctopusEnv": { "type": "string",
       "metadata": { "description": "value of OctopusEnv tag" }
     },
@@ -133,11 +136,12 @@
       "name":       "[parameters('vmName')]",
       "location":   "[resourceGroup().location]",
       "tags" :      { 
-        "Deployment" : "[deployment().Name]",
-        "ServerEnv"  : "[parameters('tagServerEnv')]",
-        "OctopusEnv" : "[parameters('tagOctopusEnv')]",
-        "ServerRole" : "[parameters('tagServerRole')]",
-        "OctopusRole": "[parameters('tagOctopusRole')]"
+//      "Deployment"   : "[deployment().Name]",
+        "ServerEnv"    : "[parameters('tagServerEnv')]",
+        "ServerRegion" : "[parameters('tagServerRegion')]",
+        "OctopusEnv"   : "[parameters('tagOctopusEnv')]",
+        "ServerRole"   : "[parameters('tagServerRole')]",
+        "OctopusRole"  : "[parameters('tagOctopusRole')]"
       },      
       "properties": {
         "hardwareProfile": {
