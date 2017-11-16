@@ -96,9 +96,11 @@ try
     # netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
 
 #download resource storage
+    if (!(test-path $oselDir)) {mkdir $oselDir }
+    
     $url = ($setup.RootStgContainer, $setup.serverEnv, $oselRes) -join "/"
     $oselZip = "$oselDir\$oselRes"
-    LogToFile "downloading OSEL: $url" 
+    LogToFile "downloading OSEL: $url ($([bool]$setup.SasToken) >> $oselZip" 
     (New-Object System.Net.WebClient).DownloadFile("$url$($setup.SASToken)", $oselZip )
 
 #unzip
