@@ -13,9 +13,7 @@ param
     $logDir = "C:\logs\ARM"
     $oselDir = "c:\OSEL"
     $setupScript = "$oselDir\StandAloneScripts\ServerSetup\init-server.ps1"
-    #$rootStgContainer = "https://oriflamestorage.blob.core.windows.net/onlineassets"
     $oselRes = "osel.zip"
-    #$cfgJson = "config.json"
 #endregion
 
 
@@ -57,7 +55,72 @@ function Get-ARMContainer( $vaultName, $secretName )
     }
 }
 
+# back compatibility
 
+function SelectMostMatchingOnly( $dict, $key, $suffix )
+{
+    $bestkey = "$key-$suffix" #shared pattern
+    LogToFile "Key=$key, Sfx=$suffix, Best=$bestkey"
+    LogToFile "Dict=$dict"
+    
+    LogToFile "Looking for [$bestkey]"
+    if ( $dict.Contains($bestkey) ) 
+    {
+        LogToFile "Specific key found [$bestkey]: $($dict[$bestkey])"
+        LogToFile "Replacing value [$key]: $($dict[$key])"
+        $dict[$key] = $dict[$bestkey]
+    } else {
+        LogToFile "Common key used [$key]:  $($dict[$key])"
+    }
+
+    #remove all 
+    $toremove = $dict.Keys | ?{ $_ -like "$key-*" }
+    $toremove | %{ 
+            LogToFile "Removing [$_]"
+            $dict.Remove($_) 
+        }
+}
+
+
+function Set-v10_Environment( $serverSetup )
+{
+    SelectMostMatchingOnly $serverSetup "BlobStorage" $serverSetup.serverRole
+
+    LogToFile "Setup config: $($serverSetup | Out-String)" 
+
+    if ( !$setup.serverEnv -or !$setup.SASToken )
+    {
+        throw "Mandatory parameters 'serverEnv' or 'SASToken' are not provided."
+    }
+
+    $rootStgContainer = "https://oriflamestorage.blob.core.windows.net/onlineassets"
+    $cfgJson = "config.json"
+
+    LogToFile "saving parameters as config file $oselDir\$cfgJson" 
+    $serverSetup | 
+        ConvertTo-Json | 
+        Out-File "$oselDir\$cfgJson"
+
+    $serverSetup.RootStgContainer =  $rootStgContainer    
+}
+
+
+function Set-v20_Environment( $serverSetup )
+{
+    if ( !$serverSetup.VaultName -or !$serverSetup.SecretName -or !$serverSetup.ServerEnv )
+    {
+        throw "Mandatory parameters: ['VaultName', 'ServerEnv'] are not provided."
+    }
+
+    $armcontainer = Get-ARMContainer -vaultName $serverSetup.VaultName -secretName $serverSetup.SecretName
+    if ( !$armcontainer )
+    {
+        throw "SAS token not found - check [$($serverSetup.VaultName) >> $($serverSetup.SecretName)] for apropriate secret."
+    }
+
+    $serverSetup.RootStgContainer = $armcontainer.Uri
+    $serverSetup.SasToken = $armcontainer.SAS 
+}
 
 #start
     LogToFile "Current folder $currentScriptFolder" 
@@ -74,30 +137,37 @@ try
     (ConvertFrom-Json $setupJson).psobject.properties | %{ $setup[$_.Name] = $_.Value }
 #endregion (decode)
 
-#region obtain secrets    
-    if ( !$setup.VaultName -or !$setup.SecretName -or !$setup.ServerEnv )
-    {
-        throw "Mandatory parameters: ['VaultName', 'ServerEnv'] are not provided."
-    }
-
-    $armcontainer = Get-ARMContainer -vaultName $setup.VaultName -secretName $setup.SecretName
-    if ( !$armcontainer )
-    {
-        throw "SAS token not found - check [$($setup.VaultName) >> $($setup.SecretName)] for apropriate secret."
-    }
-
-    $setup.RootStgContainer = $armcontainer.Uri
-    $setup.SasToken = $armcontainer.SAS
-#endregion (secrets)  
-
-
 #enable samba    
     # LogToFile "Enabling Samba" 
     # netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
 
 #download resource storage
     if (!(test-path $oselDir)) {mkdir $oselDir }
-    
+
+# file version
+    switch ( $setup.Version )
+    {
+        "1.0" { #version with secures in serversetup (expected config.json) 
+            $setup.octopusEnv=$octopusEnv 
+            $setup.serverRole=$serverRole.ToLower()
+            $setup.octopusRole=$octopusRole
+            Set-v10_Environment $setup
+         }
+        "2.0" { #version with keyvault
+            Set-v20_Environment $setup
+         }
+        default { 
+            throw "Unknown Server Setup version: [$($setup.Version)] "
+        } 
+    }
+
+
+#enable samba    
+    # LogToFile "Enabling Samba" 
+    # netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
+
+
+#download resource storage
     $url = ($setup.RootStgContainer, $setup.serverEnv, $oselRes) -join "/"
     $oselZip = "$oselDir\$oselRes"
     LogToFile "downloading OSEL: $url ($([bool]$setup.SasToken) >> $oselZip" 
