@@ -65,6 +65,7 @@
           "vmOSVersion":          { "value": "[parameters('vmOSVersion')]" },
           "vmAdminUsername":      { "value": "[parameters('vmAdminUsername')]" },
           "vmAdminPassword":      { "value": "[parameters('vmAdminPassword')]" },
+          "vmAvailabilitySetName":{ "value": "[toUpper(concat(parameters('vmNameBase'), 'AS'))]" },
                     
           "domainJoinToDomain":   { "value": "[parameters('domainJoinToDomain')]" },
           "domainJoinAccount":    { "value": "[parameters('domainJoinAccount')]" },

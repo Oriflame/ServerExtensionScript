@@ -29,7 +29,7 @@
       "metadata": { "description": "value of OctopusRole tag" }
     },
 
-
+    // VM parameterization
     "vmName": { "type": "string",
         "metadata": { "description": "Name of the VM" }
     },
@@ -51,7 +51,12 @@
     "vmAdminPassword": { "type": "securestring",
         "metadata": { "description": "The password for the administrator account of the new VM and the domain" }
     },
+    "vmAvailabilitySetName": { "type": "string", "defaultValue": "",
+        "metadata": { "description": "Name of Availability Set - none if empty" }
+    },
     
+
+    // domain parameterization
     "domainJoinAccount": { "type": "string",
         "metadata": { "description": "The account of the user with permissions to add" }
     },
@@ -144,6 +149,9 @@
         "OctopusRole"  : "[parameters('tagOctopusRole')]"
       },      
       "properties": {
+        "availabilitySet": {
+          "id": "[if( equals(parameters('vmAvailabilitySetName'), ''), json('null'), resourceId('Microsoft.Compute/availabilitySets', parameters('vmAvailabilitySetName')))]"
+        },
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
         },
