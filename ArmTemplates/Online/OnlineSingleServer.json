@@ -149,9 +149,7 @@
         "OctopusRole"  : "[parameters('tagOctopusRole')]"
       },      
       "properties": {
-        "availabilitySet": {
-          "id": "[if( equals(parameters('vmAvailabilitySetName'), '*'), json('null'), resourceId('Microsoft.Compute/availabilitySets', parameters('vmAvailabilitySetName')))]"
-        },
+        "availabilitySet": "[if( equals(parameters('vmAvailabilitySetName'), '*'), json('null'), resourceId('Microsoft.Compute/availabilitySets', parameters('vmAvailabilitySetName')))]",        
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
         },
