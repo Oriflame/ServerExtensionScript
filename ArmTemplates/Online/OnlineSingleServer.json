@@ -51,7 +51,7 @@
     "vmAdminPassword": { "type": "securestring",
         "metadata": { "description": "The password for the administrator account of the new VM and the domain" }
     },
-    "vmAvailabilitySetName": { "type": "string", "defaultValue": "",
+    "vmAvailabilitySetName": { "type": "string", "defaultValue": "*",
         "metadata": { "description": "Name of Availability Set - none if empty" }
     },
     
@@ -150,7 +150,7 @@
       },      
       "properties": {
         "availabilitySet": {
-          "id": "[if( equals(parameters('vmAvailabilitySetName'), ''), json('null'), resourceId('Microsoft.Compute/availabilitySets', parameters('vmAvailabilitySetName')))]"
+          "id": "[if( equals(parameters('vmAvailabilitySetName'), '*'), json('null'), resourceId('Microsoft.Compute/availabilitySets', parameters('vmAvailabilitySetName')))]"
         },
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
