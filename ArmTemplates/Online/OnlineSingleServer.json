@@ -97,7 +97,12 @@
     "vnetID": "[resourceId(parameters('existingVnetRG'), 'Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]",
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
     "imagePublisher": "MicrosoftWindowsServer",
-    "imageOffer": "WindowsServer"
+    "imageOffer": "WindowsServer",
+
+    "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
+    "availabilitySet": {
+      "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
+    }
   },
   "resources": [
     {
@@ -149,7 +154,7 @@
         "OctopusRole"  : "[parameters('tagOctopusRole')]"
       },      
       "properties": {
-        "availabilitySet": "[if( equals(parameters('vmAvailabilitySetName'), '*'), json('null'), resourceId('Microsoft.Compute/availabilitySets', parameters('vmAvailabilitySetName')))]",        
+        "availabilitySet": "[if( equals(parameters('vmAvailabilitySetName'), '*'), json('null'), variables('availabilitySet'))]",        
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
         },
