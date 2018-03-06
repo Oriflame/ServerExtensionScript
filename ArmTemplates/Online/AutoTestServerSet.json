@@ -1,0 +1,57 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "existingVNETName":   { "type": "string" },
+    "existingVnetRG":     { "type": "string" },
+    "existingSubnetName": { "type": "string" },
+
+    "vmNameBase":         { "type": "string" },
+    "vmSize":             { "type": "string" },
+    "vmOSStorageType":    { "type": "string" },
+    "vmOSVersion":        { "type": "string" },
+
+    "vmAdminUsername":    { "type": "string" },
+    "vmAdminPassword":    { "type": "securestring" },
+    
+    "idFirst":            { "type": "int" },
+    "count":              { "type": "int" },
+
+    "ServerSetup":        { "type": "string", "defaultValue": "package1,package2" },
+    "ServerScript":       { "type": "string", "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/Setup-Choco.ps1" }
+  },
+  "variables": { },
+  "resources": [
+    {
+      "apiVersion": "2015-01-01",
+      "name": "[concat(deployment().name, padLeft(copyIndex(parameters('idFirst')), 2, '0'))]",
+      "type": "Microsoft.Resources/deployments",
+      "copy": {
+        "name": "nestedVMDeploymentCopySet",
+        "count": "[parameters('count')]"
+      },
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/SingleServer.json",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "existingVNETName":     { "value": "[parameters('existingVNETName')]" },
+          "existingVnetRG":       { "value": "[parameters('existingVnetRG')]" },
+          "existingSubnetName":   { "value": "[parameters('existingSubnetName')]" },
+          
+          "vmName":               { "value": "[concat(parameters('vmNameBase'), padLeft(copyIndex(parameters('idFirst')), 2, '0'))]"  },
+          "vmSize":               { "value": "[parameters('vmSize')]" },
+          "vmOSStorageType":      { "value": "[parameters('vmOSStorageType')]" },
+          "vmOSVersion":          { "value": "[parameters('vmOSVersion')]" },
+          "vmAdminUsername":      { "value": "[parameters('vmAdminUsername')]" },
+          "vmAdminPassword":      { "value": "[parameters('vmAdminPassword')]" },
+                    
+          "serverScript":         { "value": "[parameters('serverScript')]" },
+          "serverSetup":          { "value": "[parameters('serverSetup')]" }
+        }
+      }
+    }
+  ]
+}
