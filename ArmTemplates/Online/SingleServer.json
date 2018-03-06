@@ -158,7 +158,7 @@
           "fileUris": "[split(parameters('serverScript'), ' ')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[variables('serverScriptExecuteBase'))]"
+          "commandToExecute": "[variables('serverScriptExecuteBase')]"
         }
       },
       "dependsOn": [
