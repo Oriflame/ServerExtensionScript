@@ -21,6 +21,14 @@
     "vmOSStorageType": { "type": "string", "defaultValue": "Standard_LRS",      
       "metadata": { "description": "The type of storage for virtual machines. Can be Standard_LRS or Premium_LRS. Needs to correlate with vmSize" }
     },
+
+    "vmImagePublisher": { "type": "string", "defaultValue": "MicrosoftWindowsServer", 
+      "metadata": { "description": "see: Get-AzureRMVMImagePublisher -Location $locName | Select PublisherName" }
+    },
+    "vmImageOffer": { "type": "string", "defaultValue": "WindowsServer",
+      "metadata" : { "description": "see: Get-AzureRMVMImageOffer -Location $locName -Publisher $publName | Select Offer" }
+    },
+
     "vmOSVersion": {  "type": "string", "defaultValue": "2016-Datacenter-Server-Core",
       "metadata": { "description": "The type of OS for virtual machines." }
     },
@@ -59,9 +67,15 @@
     "nicName": "[concat(parameters('vmName'),'Nic')]",
     "vnetID": "[resourceId(parameters('existingVnetRG'), 'Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]",
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
-    "imagePublisher": "MicrosoftWindowsDesktop",  // "MicrosoftWindowsServer",
-    "imageOffer": "Windows-10",                   // "WindowsServer",
-    "windowsOSVersion": "[parameters('vmOSVersion')]"     //    "2016-Datacenter-Server-Core",    
+    "imagePublisher": "[parameters('vmImagePublisher')]",   // "MicrosoftWindowsServer"
+    "imageOffer": "[parameters('vmImageOffer')]",           // "WindowsServer"
+    "windowsOSVersion": "[parameters('vmOSVersion')]",       // "2016-Datacenter-Server-Core"
+
+    "serverScriptSplit": "[split(parameters('serverScript'), '/')]",
+    "serverScriptFirstFileName": "[variables('serverScriptSplit')[sub(length(variables('serverScriptSplit')), 1)]]",
+    "serverScriptBreak": "[split(variables('serverScriptFirstFileName'), '?')]",
+    "serverScriptFileName": "[variables('serverScriptFileName')[0]]",
+    "serverScriptExecuteBase": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('serverScriptFileName'), ' -setupB64json ', base64(parameters('ServerSetup')) )]"
   },
   "resources": [
     {
@@ -129,7 +143,28 @@
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
       ]
-    }
+    },
+    {
+      "name": "[concat(parameters('vmName'), '/CustomScript-', variables('serverScriptFileName') )]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.7",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": "[split(parameters('serverScript'), ' ')]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[variables('serverScriptExecuteBase'))]"
+        }
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+      ]
+    }    
   ],
   "outputs": {
     "VMName": {

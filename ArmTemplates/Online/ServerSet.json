@@ -9,7 +9,10 @@
     "vmNameBase":         { "type": "string" },
     "vmSize":             { "type": "string" },
     "vmOSStorageType":    { "type": "string" },
-    "vmOSVersion":        { "type": "string", "defaultValue": "2016-Datacenter-Server-Core"},
+    
+    "vmImagePublisher":   { "type": "string" },
+    "vmImageOffer":       { "type": "string" },
+    "vmOSVersion":        { "type": "string" },
 
     "vmAdminUsername":    { "type": "string" },
     "vmAdminPassword":    { "type": "securestring" },
