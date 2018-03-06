@@ -59,8 +59,8 @@
     "nicName": "[concat(parameters('vmName'),'Nic')]",
     "vnetID": "[resourceId(parameters('existingVnetRG'), 'Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]",
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
-    "imagePublisher": "MicrosoftWindowsServer",
-    "imageOffer": "WindowsServer",
+    "imagePublisher": "MicrosoftWindowsDesktop",  // "MicrosoftWindowsServer",
+    "imageOffer": "Windows-10",                   // "WindowsServer",
     "windowsOSVersion": "[parameters('vmOSVersion')]"     //    "2016-Datacenter-Server-Core",    
   },
   "resources": [
