@@ -9,13 +9,13 @@
     "vmNameBase":         { "type": "string" },
     "vmSize":             { "type": "string" },
     "vmOSStorageType":    { "type": "string" },
-    "vmOSVersion":        { "type": "string" },
+    "vmOSVersion":        { "type": "string", "defaultValue": "2016-Datacenter-Server-Core"},
 
     "vmAdminUsername":    { "type": "string" },
     "vmAdminPassword":    { "type": "securestring" },
     
-    "idFirst":            { "type": "int", "defaultValue": "1" },
-    "count":              { "type": "int", "defaultValue": "1" },
+    "idFirst":            { "type": "int", "defaultValue": 1 },
+    "count":              { "type": "int", "defaultValue": 1 },
 
     "ServerSetup":        { "type": "string" },
     "ServerScript":       { "type": "string" },
