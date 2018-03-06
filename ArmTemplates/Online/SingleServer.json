@@ -74,7 +74,7 @@
     "serverScriptSplit": "[split(parameters('serverScript'), '/')]",
     "serverScriptFirstFileName": "[variables('serverScriptSplit')[sub(length(variables('serverScriptSplit')), 1)]]",
     "serverScriptBreak": "[split(variables('serverScriptFirstFileName'), '?')]",
-    "serverScriptFileName": "[variables('serverScriptFileName')[0]]",
+    "serverScriptFileName": "[variables('serverScriptBreak')[0]]",
     "serverScriptExecuteBase": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('serverScriptFileName'), ' -setupB64json ', base64(parameters('ServerSetup')) )]"
   },
   "resources": [

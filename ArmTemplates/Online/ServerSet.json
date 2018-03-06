@@ -9,7 +9,7 @@
     "vmNameBase":         { "type": "string" },
     "vmSize":             { "type": "string" },
     "vmOSStorageType":    { "type": "string" },
-    
+
     "vmImagePublisher":   { "type": "string" },
     "vmImageOffer":       { "type": "string" },
     "vmOSVersion":        { "type": "string" },
@@ -20,7 +20,7 @@
     "idFirst":            { "type": "int", "defaultValue": 1 },
     "count":              { "type": "int", "defaultValue": 1 },
 
-    "ServerSetup":        { "type": "string" },
+    "ServerSetup":        { "type": "object" },
     "ServerScript":       { "type": "string" },
 
     "SingleServerTemplate": { "type": "string", "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/SingleServer.json" }
@@ -54,7 +54,7 @@
           "vmAdminPassword":      { "value": "[parameters('vmAdminPassword')]" },
                     
           "serverScript":         { "value": "[parameters('serverScript')]" },
-          "serverSetup":          { "value": "[parameters('serverSetup')]" }
+          "serverSetup":          { "value": "[string(parameters('serverSetup'))]" }
         }
       }
     }
