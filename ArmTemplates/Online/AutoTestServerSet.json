@@ -11,14 +11,16 @@
     "vmOSStorageType":    { "type": "string" },
     "vmOSVersion":        { "type": "string" },
 
-    "vmAdminUsername":    { "type": "string", "defaultValue": "localadmin" },
+    "vmAdminUsername":    { "type": "string" },
     "vmAdminPassword":    { "type": "securestring" },
     
-    "idFirst":            { "type": "int" },
-    "count":              { "type": "int" },
+    "idFirst":            { "type": "int", "defaultValue": "1" },
+    "count":              { "type": "int", "defaultValue": "1" },
 
-    "ServerSetup":        { "type": "string", "defaultValue": "package1,package2" },
-    "ServerScript":       { "type": "string", "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/Setup-Choco.ps1" }
+    "ServerSetup":        { "type": "string" },
+    "ServerScript":       { "type": "string" },
+
+    "SingleServerTemplate": { "type": "string", "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/SingleServer.json" }
   },
   "variables": { },
   "resources": [
@@ -33,7 +35,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/SingleServer.json",
+          "uri": "[parameters('SingleServerTemplate')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
