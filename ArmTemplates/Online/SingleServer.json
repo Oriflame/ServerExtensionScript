@@ -34,7 +34,7 @@
     "domainJoinAccount": { "type": "string", "defaultValue": "",
       "metadata": { "description": "The account of the user with permissions to add" }
     },
-    "domainJoinToDomain": { "type": "string", "default": "",
+    "domainJoinToDomain": { "type": "string", "defaultValue": "",
       "metadata": { "description": "The FQDN of the AD domain (avoid join domain if default/empty)" }
     },
     "domainJoinPassword": { "type": "securestring", "defaultValue": "",

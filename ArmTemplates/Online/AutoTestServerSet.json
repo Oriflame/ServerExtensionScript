@@ -11,7 +11,7 @@
     "vmOSStorageType":    { "type": "string" },
     "vmOSVersion":        { "type": "string" },
 
-    "vmAdminUsername":    { "type": "string" },
+    "vmAdminUsername":    { "type": "string", "defaultValue": "localadmin" },
     "vmAdminPassword":    { "type": "securestring" },
     
     "idFirst":            { "type": "int" },
