@@ -5,7 +5,9 @@ param
 )
 
 #region CONSTANTS
-    $logDir = "C:\logs\ARM"
+    $startupDir = "C:\~init"
+    $logDir     = "C:\logs\ARM"
+    $separator  = "~" * 50
 #endregion
 
 
@@ -21,6 +23,54 @@ function LogToFile( [string] $text )
     $date = Get-Date -Format s
     "$($date): $text" | Out-File $logFile -Append
 }
+
+function DownloadStartupPackage( $remotePackage, $targetDir)
+{
+    LogToFile "Startup Package ... " 
+    
+    $tempzip = "D:\startup.zip"
+    LogToFile "Download Startup Package ..." 
+    (New-Object System.Net.WebClient).DownloadFile("$remotePackage", $tempzip )
+
+    LogToFile "Unziping Startup Package to [$targetDir] ... "  
+    Expand-Archive -LiteralPath $tempzip -DestinationPath $targetDir
+
+    $startup = Join-Path $targetDir "startup.ps1"
+    if ( Test-Path( $startup ) )
+    {
+        LogToFile "Exec [$startup] ... "
+        LogToFile $separator
+        &$startup >> $logFile
+        LogToFile $separator
+    }
+
+    LogToFile "Startup Done" 
+}
+
+function InstallChocoPackages ( $chocoPackages )
+{
+    LogToFile "Choco install ..."
+
+    Set-ExecutionPolicy Bypass -Scope Process -Force 
+    $chocoout = Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    LogToFile "$chocoout" 
+
+    LogToFile "Done (Choco)" 
+
+    LogToFile "Choco packages ..." 
+    foreach( $p in $chocoPackages )
+    {
+        LogToFile "choco install -y $p - Execution:"
+        LogToFile $separator
+        &choco install -y ($p -split " ") >> $logFile
+        LogToFile $separator
+        LogToFile "choco [$p] - Finished"
+    }
+
+    LogToFile "Choco Done" 
+}
+
+
 
 #start
     LogToFile "Current folder $currentScriptFolder" 
@@ -39,28 +89,17 @@ try
     LogToFile "Enabling Samba" 
     netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
 
-#exec nuget
-    LogToFile "Choco install ..."
-    
-    Set-ExecutionPolicy Bypass -Scope Process -Force 
-    $chocoout = Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
-    LogToFile "$chocoout" 
-
-    LogToFile "Done (Choco)" 
-
-    LogToFile "Choco packages ..." 
-    if ( $setup.Packages )
+#exec choco
+    if ( $setup.ChocoPackages )
     {
-        foreach( $p in $setup.Packages )
-        {
-            LogToFile "choco install -y $p - Execution:"
-            LogToFile "~"*50
-            &choco install -y $p >> $logFile
-            LogToFile "~"*50
-            LogToFile "choco [$p] - Finished"
-        }
+        InstallChocoPackages $setup.ChocoPackages
     }
-    LogToFile "Done (Packages)" 
+    
+#exec startup    
+    if ( $setup.StartupPackage )
+    {
+        DownloadStartupPackage $setup.StartupPackage $startupDir
+    }
 
 #done    
     LogToFile "Done" 
