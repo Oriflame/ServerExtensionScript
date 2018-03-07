@@ -30,7 +30,8 @@ function DownloadStartupPackage( $remotePackage, $targetDir)
     
     $tempzip = "D:\startup.zip"
     LogToFile "Download Startup Package ..." 
-    (New-Object System.Net.WebClient).DownloadFile("$remotePackage", $tempzip )
+    LogToFile $remotePackage
+    (New-Object System.Net.WebClient).DownloadFile( $remotePackage, $tempzip )
 
     LogToFile "Unziping Startup Package to [$targetDir] ... "  
     Expand-Archive -LiteralPath $tempzip -DestinationPath $targetDir
@@ -50,11 +51,12 @@ function DownloadStartupPackage( $remotePackage, $targetDir)
 function InstallChocoPackages ( $chocoPackages )
 {
     LogToFile "Choco install ..."
+    LogToFile $separator
 
-    Set-ExecutionPolicy Bypass -Scope Process -Force 
     $chocoout = Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
     LogToFile "$chocoout" 
 
+    LogToFile $separator
     LogToFile "Done (Choco)" 
 
     LogToFile "Choco packages ..." 
@@ -80,14 +82,17 @@ try
 
 #region Decode Parameter
     $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
-    $setup = @{
-    }
+    $setup = @{}
     (ConvertFrom-Json $setupJson).psobject.properties | %{ $setup[$_.Name] = $_.Value }
 #endregion (decode)
 
 #enable samba    
     LogToFile "Enabling Samba" 
     netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
+
+#enable execution    
+    LogToFile "Enabling Execution Policy" 
+    Set-ExecutionPolicy Bypass -Scope Process -Force 
 
 #exec choco
     if ( $setup.ChocoPackages )
