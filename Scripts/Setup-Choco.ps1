@@ -41,8 +41,10 @@ try
 
 #exec nuget
     LogToFile "Choco install ..."
+    
     Set-ExecutionPolicy Bypass -Scope Process -Force 
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    $chocoout = Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    LogToFile "$chocoout" 
 
     LogToFile "Done (Choco)" 
 
@@ -51,8 +53,10 @@ try
     {
         foreach( $p in $setup.Packages )
         {
-            LogToFile "choco install [$p] - Execution:`n"
-            &choco install $p > $logFile
+            LogToFile "choco install -y $p - Execution:"
+            LogToFile "~"*50
+            &choco install -y $p >> $logFile
+            LogToFile "~"*50
             LogToFile "choco [$p] - Finished"
         }
     }
