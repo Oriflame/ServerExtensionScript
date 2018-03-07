@@ -41,7 +41,7 @@ try
 
 #exec nuget
     LogToFile "Choco install ..." 
-    Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+    # Invoke-Expression ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 
     LogToFile "Done (Choco)" 
 
@@ -51,7 +51,7 @@ try
         foreach( $p in $setup.Packages )
         {
             LogToFile "choco install [$p] - Execution:`n"
-            &choco install $p > $logFile
+            # &choco install $p > $logFile
             LogToFile "choco [$p] - Finished"
         }
     }

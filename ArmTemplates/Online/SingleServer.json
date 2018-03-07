@@ -39,21 +39,21 @@
       "metadata": { "description": "The password for the administrator account of the new VM and the domain" }
     },
     
-    "domainJoinAccount": { "type": "string", "defaultValue": "",
-      "metadata": { "description": "The account of the user with permissions to add" }
-    },
-    "domainJoinToDomain": { "type": "string", "defaultValue": "",
-      "metadata": { "description": "The FQDN of the AD domain (avoid join domain if default/empty)" }
-    },
-    "domainJoinPassword": { "type": "securestring", "defaultValue": "",
-      "metadata": { "description": "Password of the account on the domain" }
-    },
-    "domainJoinOuPath": { "type": "string", "defaultValue": "",      
-      "metadata": { "description": "Specifies an organizational unit (OU) for the domain account. Enter the full distinguished name of the OU in quotation marks. Example: 'OU=testOU; DC=domain; DC=Domain; DC=com" }
-    },
-    "domainJoinOptions": { "type": "int", "defaultValue": 3,
-      "metadata": { "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx" }
-    },
+    // "domainJoinAccount": { "type": "string", "defaultValue": "",
+    //   "metadata": { "description": "The account of the user with permissions to add" }
+    // },
+    // "domainJoinToDomain": { "type": "string", "defaultValue": "",
+    //   "metadata": { "description": "The FQDN of the AD domain (avoid join domain if default/empty)" }
+    // },
+    // "domainJoinPassword": { "type": "securestring", "defaultValue": "",
+    //   "metadata": { "description": "Password of the account on the domain" }
+    // },
+    // "domainJoinOuPath": { "type": "string", "defaultValue": "",      
+    //   "metadata": { "description": "Specifies an organizational unit (OU) for the domain account. Enter the full distinguished name of the OU in quotation marks. Example: 'OU=testOU; DC=domain; DC=Domain; DC=com" }
+    // },
+    // "domainJoinOptions": { "type": "int", "defaultValue": 3,
+    //   "metadata": { "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx" }
+    // },
 
     "serverScript": { "type": "string", "defaultValue": "",
       "metadata": { "description": "Public script url (avoid custom script if default)" }
