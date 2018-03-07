@@ -29,8 +29,8 @@ function DownloadStartupPackage( $remotePackage, $targetDir)
     LogToFile "Startup Package ... " 
     
     $tempzip = "D:\startup.zip"
-    LogToFile "Download Startup Package ..." 
-    LogToFile $remotePackage
+    $u = [uri]$remotePackage
+    LogToFile "Download Startup Package $($u.Scheme)://$($u.Host)$($u.AbsolutePath) ..." 
     (New-Object System.Net.WebClient).DownloadFile( $remotePackage, $tempzip )
 
     LogToFile "Unziping Startup Package to [$targetDir] ... "  
