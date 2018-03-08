@@ -59,7 +59,11 @@
       "metadata": { "description": "Public script url (avoid custom script if default)" }
     },
     "serverSetup": { "type": "string", "defaultValue": "",
-      "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
+      "metadata": { "description": "Server script parameter structure." }
+    },
+
+    "StorageAccountName" : { "type": "string", "defaultValue": "",
+      "metadata": { "description": "Storage Accout for Diagnostic" }
     }
   },
 
@@ -138,6 +142,12 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
             }
           ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+          "enabled": true,
+          "storageUri": "[reference(concat('Microsoft.Storage/storageAccounts/', parameters('StorageAccountName')), '2015-06-15').primaryEndpoints.blob]"
+          }
         }
       },
       "dependsOn": [
