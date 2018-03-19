@@ -30,7 +30,7 @@
     },
 
     "vmOSVersion": {  "type": "string", "defaultValue": "2016-Datacenter-Server-Core",
-      "metadata": { "description": "The type of OS for virtual machines." }
+      "metadata": { "description": "see: Get-AzureRMVMImageSKU -Location $locName -Publisher $publName -offer $offer" }
     },
     "vmAdminUsername": { "type": "string",
       "metadata": { "description": "The name of the administrator of the new VM and the domain. Exclusion list: 'admin','administrator" }
