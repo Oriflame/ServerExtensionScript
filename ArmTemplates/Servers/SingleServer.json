@@ -39,6 +39,9 @@
       "metadata": { "description": "The password for the administrator account of the new VM and the domain" }
     },
     
+    "domainJoin": { "type": "string", "allowedValues": ["Yes", "No"], "defaultValue": "No",
+      "metadata": { "description": "Yes if registration is required" }
+    },
     "domainJoinAccount": { "type": "string", "defaultValue": "",
       "metadata": { "description": "The account of the user with permissions to add" }
     },
@@ -157,7 +160,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(parameters('vmName'),'/joindomain')]",
-      "condition": "[not(equals(parameters('domainJoinToDomain'), '')]",
+      "condition": "[equals(parameters('domainJoin'), 'Yes')]",
       "apiVersion": "2016-03-30",
       "location": "[resourceGroup().location]",
       "properties": {
