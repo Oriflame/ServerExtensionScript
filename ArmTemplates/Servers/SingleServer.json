@@ -82,11 +82,7 @@
     "serverScriptFirstFileName": "[variables('serverScriptSplit')[sub(length(variables('serverScriptSplit')), 1)]]",
     "serverScriptBreak": "[split(variables('serverScriptFirstFileName'), '?')]",
     "serverScriptFileName": "[variables('serverScriptBreak')[0]]",
-    "serverScriptExecuteBase": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('serverScriptFileName'), ' -setupB64json ', base64(parameters('ServerSetup')) )]",
-    "diagnosticsProfile": {
-      "enabled": true,
-      "storageUri": "[reference(concat('Microsoft.Storage/storageAccounts/', parameters('StorageAccountName')), '2015-06-15').primaryEndpoints.blob]"
-    }
+    "serverScriptExecuteBase": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('serverScriptFileName'), ' -setupB64json ', base64(parameters('ServerSetup')) )]"
   },
   "resources": [
     {
@@ -149,9 +145,12 @@
               "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
             }
           ]
-        },
-        "diagnosticsProfile": {
-          "bootDiagnostics": "[if(not(equals(parameters('StorageAccountName'),'')), json('null'), variables('diagnosticsProfile'))]"
+        // },
+        // "diagnosticsProfile": {
+        //   "bootDiagnostics": {     
+        //     "enabled": true,
+        //     "storageUri": "[reference(concat('Microsoft.Storage/storageAccounts/', parameters('StorageAccountName')), '2015-06-15').primaryEndpoints.blob]"
+        //   }      
         }
       },
       "dependsOn": [
