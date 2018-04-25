@@ -140,7 +140,7 @@
           "dataDisks": [
             {
               "lun": 0,
-              "name": "[concat(parameters('vmName'), '-data-disk-01'))]",
+              "name": "[concat(parameters('vmName'), '-data-disk-01')]",
               "createOption": "Attach",
               "caching": "None",
               "managedDisk": {
