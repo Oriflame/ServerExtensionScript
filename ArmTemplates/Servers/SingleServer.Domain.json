@@ -1,0 +1,220 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "existingVNETName": { "type": "string",
+      "metadata": { "description": "Existing VNET that contains the domain controller" }
+    },
+    "existingVnetRG": { "type": "string",
+      "metadata": { "description": "Existing VNET ResourceGroup" }
+    },
+    "existingSubnetName": { "type": "string",
+      "metadata": { "description": "Existing subnet that contains the domain controller" }
+    },
+
+    "vmName": { "type": "string",
+      "metadata": { "description": "Name of the VM" }
+    },
+    "vmSize": { "type": "string", "defaultValue": "Standard_A2",
+      "metadata": { "description": "The size of the virtual machines" }
+    },
+    "vmOSStorageType": { "type": "string", "defaultValue": "Standard_LRS",      
+      "metadata": { "description": "The type of storage for virtual machines. Can be Standard_LRS or Premium_LRS. Needs to correlate with vmSize" }
+    },
+
+    "vmImagePublisher": { "type": "string", "defaultValue": "MicrosoftWindowsServer", 
+      "metadata": { "description": "see: Get-AzureRMVMImagePublisher -Location $locName | Select PublisherName" }
+    },
+    "vmImageOffer": { "type": "string", "defaultValue": "WindowsServer",
+      "metadata" : { "description": "see: Get-AzureRMVMImageOffer -Location $locName -Publisher $publName | Select Offer" }
+    },
+
+    "vmOSVersion": {  "type": "string", "defaultValue": "2016-Datacenter-Server-Core",
+      "metadata": { "description": "see: Get-AzureRMVMImageSKU -Location $locName -Publisher $publName -offer $offer" }
+    },
+    "vmAdminUsername": { "type": "string",
+      "metadata": { "description": "The name of the administrator of the new VM and the domain. Exclusion list: 'admin','administrator" }
+    },
+    "vmAdminPassword": { "type": "securestring",
+      "metadata": { "description": "The password for the administrator account of the new VM and the domain" }
+    },
+    
+    "domainJoin": { "type": "string", "allowedValues": ["Yes", "No"], "defaultValue": "No",
+      "metadata": { "description": "Yes if registration is required" }
+    },
+    "domainJoinAccount": { "type": "string", "defaultValue": "",
+      "metadata": { "description": "The account of the user with permissions to add" }
+    },
+    "domainJoinToDomain": { "type": "string", "defaultValue": "",
+      "metadata": { "description": "The FQDN of the AD domain (avoid join domain if default/empty)" }
+    },
+    "domainJoinPassword": { "type": "securestring", "defaultValue": "",
+      "metadata": { "description": "Password of the account on the domain" }
+    },
+    "domainJoinOuPath": { "type": "string", "defaultValue": "",      
+      "metadata": { "description": "Specifies an organizational unit (OU) for the domain account. Enter the full distinguished name of the OU in quotation marks. Example: 'OU=testOU; DC=domain; DC=Domain; DC=com" }
+    },
+    "domainJoinOptions": { "type": "int", "defaultValue": 3,
+      "metadata": { "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx" }
+    },
+
+    "serverScript": { "type": "string", "defaultValue": "",
+      "metadata": { "description": "Public script url (avoid custom script if default)" }
+    },
+    "serverSetup": { "type": "string", "defaultValue": "",
+      "metadata": { "description": "Server script parameter structure." }
+    },
+
+    "StorageAccountName" : { "type": "string", "defaultValue": "",
+      "metadata": { "description": "Storage Accout for Diagnostic" }
+    }
+  },
+
+  "variables": {
+    "nicName": "[concat(parameters('vmName'),'Nic')]",
+    "vnetID": "[resourceId(parameters('existingVnetRG'), 'Microsoft.Network/virtualNetworks', parameters('existingVNETName'))]",
+    "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
+    "imagePublisher": "[parameters('vmImagePublisher')]",   // "MicrosoftWindowsServer"
+    "imageOffer": "[parameters('vmImageOffer')]",           // "WindowsServer"
+    "windowsOSVersion": "[parameters('vmOSVersion')]",       // "2016-Datacenter-Server-Core"
+
+    "serverScriptSplit": "[split(parameters('serverScript'), '/')]",
+    "serverScriptFirstFileName": "[variables('serverScriptSplit')[sub(length(variables('serverScriptSplit')), 1)]]",
+    "serverScriptBreak": "[split(variables('serverScriptFirstFileName'), '?')]",
+    "serverScriptFileName": "[variables('serverScriptBreak')[0]]",
+    "serverScriptExecuteBase": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('serverScriptFileName'), ' -setupB64json ', base64(parameters('ServerSetup')) )]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[variables('nicName')]",
+      "apiVersion": "2017-03-01",
+      "location": "[resourceGroup().location]",
+      "tags" : {
+          "VM" : "[parameters('vmName')]"  
+      },
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[variables('subnetId')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[parameters('vmName')]",
+      "apiVersion": "2016-04-30-preview",
+      "location": "[resourceGroup().location]",
+      "tags" : {
+          "VM" : "[parameters('vmName')]"  
+      },      
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('vmAdminUsername')]",
+          "adminPassword": "[parameters('vmAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('windowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "[parameters('vmOSStorageType')]"
+            }
+          },
+          "dataDisks": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+            }
+          ]
+        // },
+        // "diagnosticsProfile": {
+        //   "bootDiagnostics": {     
+        //     "enabled": true,
+        //     "storageUri": "[reference(concat('Microsoft.Storage/storageAccounts/', parameters('StorageAccountName')), '2015-06-15').primaryEndpoints.blob]"
+        //   }      
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+      ]
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'),'/joindomain')]",
+      "condition": "[equals(parameters('domainJoin'), 'Yes')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name":    "[parameters('domainJoinToDomain')]",
+          "OUPath":  "[parameters('domainJoinOuPath')]",
+          "User":    "[parameters('domainJoinAccount')]",
+          "Options": "[parameters('domainJoinOptions')]",          
+          "Restart": true
+        },
+        "protectedSettings": {
+          "Password": "[parameters('domainJoinPassword')]"
+        }
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+      ]
+    },
+    {
+      "name": "[concat(parameters('vmName'), '/CustomScript-', variables('serverScriptFileName') )]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2016-03-30",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.7",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": "[split(parameters('serverScript'), ' ')]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[variables('serverScriptExecuteBase')]"
+        }
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
+        "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/joindomain')]"
+  
+      ]
+    }    
+  ],
+  "outputs": {
+    "VMName": {
+      "type" : "string",
+	    "value": "[parameters('vmName')]"
+    },
+    "PrivateIPAddress" : {
+      "type" : "string",
+      "value": "[reference(variables('nicName')).ipConfigurations[0].properties.privateIPAddress]"
+    } 
+  }
+}
