@@ -22,6 +22,13 @@
       "metadata": { "description": "The type of storage for virtual machines. Can be Standard_LRS or Premium_LRS. Needs to correlate with vmSize" }
     },
 
+    "vmDataStorageType": { "type": "string", "defaultValue": "Standard_LRS",      
+      "metadata": { "description": "The type of storage for data disk. Can be Standard_LRS or Premium_LRS." }
+    },
+    "vmDataStorageSize": { "type": "int", "defaultValue": 512,      
+      "metadata": { "description": "Size in GB of data disk" }
+    },
+
     "vmImagePublisher": { "type": "string", "defaultValue": "MicrosoftWindowsServer", 
       "metadata": { "description": "see: Get-AzureRMVMImagePublisher -Location $locName | Select PublisherName" }
     },
@@ -78,6 +85,8 @@
     "imageOffer": "[parameters('vmImageOffer')]",           // "WindowsServer"
     "windowsOSVersion": "[parameters('vmOSVersion')]",       // "2016-Datacenter-Server-Core"
 
+    "datadiskname": "[concat(parameters('vmName'), '-data-disk-01')]",
+
     "serverScriptSplit": "[split(parameters('serverScript'), '/')]",
     "serverScriptFirstFileName": "[variables('serverScriptSplit')[sub(length(variables('serverScriptSplit')), 1)]]",
     "serverScriptBreak": "[split(variables('serverScriptFirstFileName'), '?')]",
@@ -108,13 +117,28 @@
       }
     },
     {
+      "type": "Microsoft.Compute/disks",
+      "name": "[variables('datadiskname')]",
+      "apiVersion": "2017-03-30",
+      "location": "[resourceGroup().location]",
+      "sku": {
+          "name": "[parameters('vmDataStorageType')]"
+      },
+      "properties": {
+          "creationData": {
+              "createOption": "Empty"
+          },
+          "diskSizeGB": "[parameters('vmDataStorageSize')]"
+      }
+    },
+    {
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[parameters('vmName')]",
       "apiVersion": "2016-04-30-preview",
       "location": "[resourceGroup().location]",
       "tags" : {
           "VM" : "[parameters('vmName')]"  
-      },      
+      },            
       "properties": {
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
@@ -140,13 +164,11 @@
           "dataDisks": [
             {
               "lun": 0,
-              "name": "[concat(parameters('vmName'), '-data-disk-01')]",
+              "name": "[variables('datadiskname')]",
               "createOption": "Attach",
-              "caching": "None",
               "managedDisk": {
-                "storageAccountType": "[parameters('vmOSStorageType')]"
-              },
-              "diskSizeGB": 512
+                "id": "[resourceId('Microsoft.Compute/disks/', variables('datadiskname'))]"
+              }
             }              
           ]
         },
@@ -159,7 +181,8 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
+        "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]",
+        "[resourceId('Microsoft.Compute/disks/', variables('datadiskname'))]"
       ]
     },
     {
