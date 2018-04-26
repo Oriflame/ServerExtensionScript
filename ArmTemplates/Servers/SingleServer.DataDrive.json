@@ -126,7 +126,7 @@
       },
       "properties": {
           "creationData": {
-              "createOption": "Empty"
+              "createOption": "Attach"
           },
           "diskSizeGB": "[parameters('vmDataStorageSize')]"
       }
@@ -186,6 +186,32 @@
       ]
     },
     {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'),'/joindomain')]",
+      "condition": "[equals(parameters('domainJoin'), 'Yes')]",
+      "apiVersion": "2016-03-30",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "Name":    "[parameters('domainJoinToDomain')]",
+          "OUPath":  "[parameters('domainJoinOuPath')]",
+          "User":    "[parameters('domainJoinAccount')]",
+          "Options": "[parameters('domainJoinOptions')]",          
+          "Restart": true
+        },
+        "protectedSettings": {
+          "Password": "[parameters('domainJoinPassword')]"
+        }
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+      ]
+    },
+    {
       "name": "[concat(parameters('vmName'), '/CustomScript-', variables('serverScriptFileName') )]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "location": "[resourceGroup().location]",
@@ -203,7 +229,8 @@
         }
       },
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
+        "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/joindomain')]"
       ]
     }    
   ],
