@@ -126,7 +126,7 @@
       },
       "properties": {
           "creationData": {
-              "createOption": "Attach"
+              "createOption": "Empty"
           },
           "diskSizeGB": "[parameters('vmDataStorageSize')]"
       }
