@@ -92,7 +92,7 @@ try
 
 #enable execution    
     LogToFile "Enabling Execution Policy" 
-    Set-ExecutionPolicy Bypass -Scope Process -Force 
+    Set-ExecutionPolicy Unrestricted -Scope Process -Force       #Bypass -Scope Process -Force 
 
 #exec choco
     if ( $setup.ChocoPackages )
