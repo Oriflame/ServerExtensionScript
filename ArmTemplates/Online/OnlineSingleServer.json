@@ -101,7 +101,7 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
   
-    "vmIdentityType": "if( equals(parameters('managedidentity'), 'yes'), 'systemAssigned', 'none')", 
+    "vmIdentityType": "[if( equals(parameters('managedidentity'), 'yes'), 'systemAssigned', 'none')]", 
 
     "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
     "availabilitySet": {
