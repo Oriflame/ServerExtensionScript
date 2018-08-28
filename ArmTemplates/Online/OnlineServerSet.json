@@ -32,6 +32,7 @@
     "tagOctopusRole":     { "type": "string" },
     // "ServerSetup":     { "type": "string" },
 
+    "managedidentity":    { "type": "string" }, 
     "aadGroupExec":       { "type": "securestring" },
     "aadGroupScript" :    { "type": "string" }, 
 
@@ -80,6 +81,7 @@
           "tagServerRole":        { "value": "[parameters('tagServerRole')]" },
           "tagOctopusRole":       { "value": "[parameters('tagOctopusRole')]" },
 
+          "managedidentity":      { "value": "[parameters('managedidentity')]" },
           "aadGroupExec":         { "value": "[parameters('aadGroupExec')]" },
           "aadGroupScript":       { "value": "[parameters('aadGroupScript')]" },
 

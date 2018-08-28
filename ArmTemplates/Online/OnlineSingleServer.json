@@ -75,6 +75,8 @@
         "metadata": { "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx" }
     },
     
+    "managedidentity" : { "type" : "string", "defaultValue" : "yes" },
+
     "aadGroupScript" : { "type": "string",
       "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/Scripts/add-aadGroup.ps1",
       "metadata": { "description": "Uri of custom script extension file." }  
@@ -98,6 +100,8 @@
     "subnetId": "[concat(variables('vnetID'),'/subnets/', parameters('existingSubnetName'))]",
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
+  
+    "vmIdentityType": "if( equals(parameters('managedidentity'), 'yes'), 'systemAssigned', 'none')", 
 
     "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
     "availabilitySet": {
@@ -142,7 +146,7 @@
     {
       "apiVersion": "2016-04-30-preview",
       "type":       "Microsoft.Compute/virtualMachines",
-      "identity":   { "type": "systemAssigned" },
+      "identity":   { "type": "[variables('vmIdentityType')]" },
       "name":       "[parameters('vmName')]",
       "location":   "[resourceGroup().location]",
       "tags" :      { 
@@ -467,7 +471,7 @@
       "apiVersion": "2015-01-01",
       "name": "[concat(deployment().name, '-AAD)')]",
       "type": "Microsoft.Resources/deployments",
-      "condition": "[greater(length(parameters('aadGroupScript')), 0)]",
+      "condition": "[equals(parameters('managedidentity'), 'yes')]",
       "properties": {
         "mode": "Incremental",
         "templateLink": {
