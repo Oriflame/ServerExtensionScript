@@ -12,22 +12,28 @@
         "metadata": { "description": "Existing subnet that contains the domain controller" }
     },
 
+
+
     // values stored as tag of server
-    "tagServerEnv": { "type": "string",
-      "metadata": { "description": "value of ServerEnv tag" }
+    "vmTags" : { "type": "object", "defaultValue": "json('null')",
+      "metadata": { "description": "dicitonary of new server Tags" } 
     },
-    "tagServerRegion": { "type": "string",
-      "metadata": { "description": "value of ServerRegion tag" }
-    },    
-    "tagOctopusEnv": { "type": "string",
-      "metadata": { "description": "value of OctopusEnv tag" }
-    },
-    "tagServerRole": { "type": "string",
-      "metadata": { "description": "value of ServerRole tag" }
-    },
-    "tagOctopusRole": { "type": "string",
-      "metadata": { "description": "value of OctopusRole tag" }
-    },
+
+    // "tagServerEnv": { "type": "string",
+    //   "metadata": { "description": "value of ServerEnv tag" }
+    // },
+    // "tagServerRegion": { "type": "string",
+    //   "metadata": { "description": "value of ServerRegion tag" }
+    // },    
+    // "tagOctopusEnv": { "type": "string",
+    //   "metadata": { "description": "value of OctopusEnv tag" }
+    // },
+    // "tagServerRole": { "type": "string",
+    //   "metadata": { "description": "value of ServerRole tag" }
+    // },
+    // "tagOctopusRole": { "type": "string",
+    //   "metadata": { "description": "value of OctopusRole tag" }
+    // },
 
     // VM parameterization
     "vmName": { "type": "string",
@@ -77,7 +83,10 @@
     },
     
     "managedidentity" : { "type": "string", "allowedValues": ["Yes", "No"], "defaultValue": "Yes" },
-
+    
+    "aadSetupTemplate": { "type": "string",
+      "defaultvalue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSetup.json"
+    },
     "aadGroupScript" : { "type": "string",
       "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/Scripts/add-aadGroup.ps1",
       "metadata": { "description": "Uri of custom script extension file." }  
@@ -149,14 +158,7 @@
       "identity":   "[if( equals(parameters('managedidentity'), 'Yes'), variables('vmIdentity'), json('null'))]",
       "name":       "[parameters('vmName')]",
       "location":   "[resourceGroup().location]",
-      "tags" :      { 
-//      "Deployment"   : "[deployment().Name]",
-        "ServerEnv"    : "[parameters('tagServerEnv')]",
-        "ServerRegion" : "[parameters('tagServerRegion')]",
-        "OctopusEnv"   : "[parameters('tagOctopusEnv')]",
-        "ServerRole"   : "[parameters('tagServerRole')]",
-        "OctopusRole"  : "[parameters('tagOctopusRole')]"
-      },      
+      "tags" :      "[parameters('vmTags')]",
       "properties": {
         "availabilitySet": "[if( equals(parameters('vmAvailabilitySetName'), '*'), json('null'), variables('availabilitySet'))]",        
         "hardwareProfile": {
@@ -472,11 +474,11 @@
       "apiVersion": "2015-01-01",
       "name": "[concat(deployment().name, '-AAD)')]",
       "type": "Microsoft.Resources/deployments",
-      "condition": "[parameters('managedidentity')]",
+      "condition": "[equals(parameters('managedidentity'), 'Yes')]",
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSetup.json",
+          "uri": "[parameters('aadSetupTemplate')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
