@@ -18,6 +18,7 @@
     "idFirst":            { "type": "int" },
     "count":              { "type": "int" },
 
+    "domainJoin":         { "type": "string" },
     "domainJoinAccount":  { "type": "string" },
     "domainJoinToDomain": { "type": "string" },
     "domainJoinPassword": { "type": "securestring" },
@@ -30,15 +31,21 @@
     "tagOctopusEnv":      { "type": "string" },
     "tagServerRole":      { "type": "string" },
     "tagOctopusRole":     { "type": "string" },
+    "tagF5pool":          { "type": "string", "defaultValue": "N/A" },
     // "ServerSetup":     { "type": "string" },
 
-    "managedidentity":    { "type": "bool" }, 
+    "managedidentity":    { "type": "string" }, 
     "aadGroupExec":       { "type": "securestring" },
     "aadGroupScript" :    { "type": "string" }, 
 
-    "DiagnosticsStorageAccountName": { "type": "string" }
+    "DiagnosticsStorageAccountName": { "type": "string" },
+
+    "SingleServerTemplateUri": { "type": "string", 
+      "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
+    }
   },
-  "variables": { },
+  "variables": { 
+  },
   "resources": [
     {
       "apiVersion": "2015-01-01",
@@ -53,7 +60,7 @@
       "properties": {
         "mode": "Incremental",
         "templateLink": {
-          "uri": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json",
+          "uri": "[parameters('SingleServerTemplateUri')]",
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
@@ -61,7 +68,7 @@
           "existingVnetRG":       { "value": "[parameters('existingVnetRG')]" },
           "existingSubnetName":   { "value": "[parameters('existingSubnetName')]" },
           
-          "vmName":               { "value": "[concat(parameters('vmNameBase'), padLeft(copyIndex(parameters('idFirst')), 2, '0'))]"  },
+          "vmName":               { "value": "[concat(parameters('vmNameBase'), if( equals(parameters('idFirst'), 99), '', padLeft(copyIndex(parameters('idFirst')), 2, '0'))]"  },
           "vmSize":               { "value": "[parameters('vmSize')]" },
           "vmOSStorageType":      { "value": "[parameters('vmOSStorageType')]" },
           "vmOSVersion":          { "value": "[parameters('vmOSVersion')]" },
@@ -69,24 +76,26 @@
           "vmAdminPassword":      { "value": "[parameters('vmAdminPassword')]" },
           "vmAvailabilitySetName":{ "value": "[parameters('vmAvailabilitySet')]" },
                     
+          "domainJoin":           { "value": "[parameters('domainJoin')]" },
           "domainJoinToDomain":   { "value": "[parameters('domainJoinToDomain')]" },
           "domainJoinAccount":    { "value": "[parameters('domainJoinAccount')]" },
           "domainJoinPassword":   { "value": "[parameters('domainJoinPassword')]" },
           "domainJoinOuPath":     { "value": "[parameters('domainJoinOuPath')]" },
           "domainJoinOptions":    { "value": "[parameters('domainJoinOptions')]" },
 
-          "tagServerEnv":         { "value": "[parameters('tagServerEnv')]" },
-          "tagServerRegion":      { "value": "[parameters('tagServerRegion')]" },
-          "tagOctopusEnv":        { "value": "[parameters('tagOctopusEnv')]" },
-          "tagServerRole":        { "value": "[parameters('tagServerRole')]" },
-          "tagOctopusRole":       { "value": "[parameters('tagOctopusRole')]" },
+          "vmTags": {
+            "ServerEnv"    : "[parameters('tagServerEnv')]",
+            "ServerRegion" : "[parameters('tagServerRegion')]",
+            "OctopusEnv"   : "[parameters('tagOctopusEnv')]",
+            "ServerRole"   : "[parameters('tagServerRole')]",
+            "OctopusRole"  : "[parameters('tagOctopusRole')]",
+            "F5-pool"      : "[parameters('tagF5Pool')]"
+          },      
 
           "managedidentity":      { "value": "[parameters('managedidentity')]" },
           "aadGroupExec":         { "value": "[parameters('aadGroupExec')]" },
           "aadGroupScript":       { "value": "[parameters('aadGroupScript')]" },
 
-          // "initScript":           { "value": "[parameters('initScript')]" },
-          // "ServerSetup":          { "value": "[parameters('ServerSetup')]" },
           "DiagnosticsStorageAccountName": { "value": "[parameters('DiagnosticsStorageAccountName')]"}
         }
       }
