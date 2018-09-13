@@ -25,14 +25,12 @@
     "domainJoinOuPath":   { "type": "string" },
     "domainJoinOptions":  { "type": "int", "defaultValue": 3 },
 
-    // "initScript":      { "type": "string" },
     "tagServerEnv":       { "type": "string" },
     "tagServerRegion":    { "type": "string" },
     "tagOctopusEnv":      { "type": "string" },
     "tagServerRole":      { "type": "string" },
     "tagOctopusRole":     { "type": "string" },
-    "tagF5pool":          { "type": "string", "defaultValue": "N/A" },
-    // "ServerSetup":     { "type": "string" },
+    "tagF5poolMask":      { "type": "string" },
 
     "managedidentity":    { "type": "string" }, 
     "aadGroupExec":       { "type": "securestring" },
@@ -45,6 +43,9 @@
     }
   },
   "variables": { 
+    "f5rewrServerEnv":    "[replace(parameters('tagF5PoolMask'),     '{ServerEnv}',    parameters('tagServerEnv'))]",
+    "f5rewrServerRegion": "[replace(variables('f5rewrServerEnv'),    '{ServerRegion}', parameters('tagServerRegion'))]",
+    "f5pool":             "[replace(variables('f5rewrServerRegion'), '{ServerRole}',   parameters('tagServerRole'))]"
   },
   "resources": [
     {
@@ -89,7 +90,7 @@
                         "OctopusEnv"   : "[parameters('tagOctopusEnv')]",
                         "ServerRole"   : "[parameters('tagServerRole')]",
                         "OctopusRole"  : "[parameters('tagOctopusRole')]",
-                        "F5-pool"      : "[parameters('tagF5Pool')]"
+                        "F5-pool"      : "[variables('f5pool')]"
                       }
           },      
 
