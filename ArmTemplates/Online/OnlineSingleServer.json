@@ -15,7 +15,7 @@
 
 
     // values stored as tag of server
-    "vmTags" : { "type": "object", "defaultValue": "json('null')",
+    "vmTags" : { "type": "object", "defaultValue": {},
       "metadata": { "description": "dicitonary of new server Tags" } 
     },
 
