@@ -69,7 +69,7 @@
           "existingVnetRG":       { "value": "[parameters('existingVnetRG')]" },
           "existingSubnetName":   { "value": "[parameters('existingSubnetName')]" },
           
-          "vmName":               { "value": "[concat(parameters('vmNameBase'), if( equals(parameters('idFirst'), 99), '', padLeft(copyIndex(parameters('idFirst')), 2, '0')))]"  },
+          "vmName":               { "value": "[concat(parameters('vmNameBase'), if( greater(parameters('idFirst'), 99), '', padLeft(copyIndex(parameters('idFirst')), 2, '0')))]"  },
           "vmSize":               { "value": "[parameters('vmSize')]" },
           "vmOSStorageType":      { "value": "[parameters('vmOSStorageType')]" },
           "vmOSVersion":          { "value": "[parameters('vmOSVersion')]" },
