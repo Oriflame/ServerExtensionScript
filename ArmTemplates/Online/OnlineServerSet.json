@@ -83,13 +83,14 @@
           "domainJoinOuPath":     { "value": "[parameters('domainJoinOuPath')]" },
           "domainJoinOptions":    { "value": "[parameters('domainJoinOptions')]" },
 
-          "vmTags": {
-            "ServerEnv"    : "[parameters('tagServerEnv')]",
-            "ServerRegion" : "[parameters('tagServerRegion')]",
-            "OctopusEnv"   : "[parameters('tagOctopusEnv')]",
-            "ServerRole"   : "[parameters('tagServerRole')]",
-            "OctopusRole"  : "[parameters('tagOctopusRole')]",
-            "F5-pool"      : "[parameters('tagF5Pool')]"
+          "vmTags": { "value": {
+                        "ServerEnv"    : "[parameters('tagServerEnv')]",
+                        "ServerRegion" : "[parameters('tagServerRegion')]",
+                        "OctopusEnv"   : "[parameters('tagOctopusEnv')]",
+                        "ServerRole"   : "[parameters('tagServerRole')]",
+                        "OctopusRole"  : "[parameters('tagOctopusRole')]",
+                        "F5-pool"      : "[parameters('tagF5Pool')]"
+                      }
           },      
 
           "managedidentity":      { "value": "[parameters('managedidentity')]" },
