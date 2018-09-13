@@ -32,7 +32,7 @@
     "tagOctopusRole":     { "type": "string" },
     // "ServerSetup":     { "type": "string" },
 
-    "managedidentity":    { "type": "string" }, 
+    "managedidentity":    { "type": "bool" }, 
     "aadGroupExec":       { "type": "securestring" },
     "aadGroupScript" :    { "type": "string" }, 
 
