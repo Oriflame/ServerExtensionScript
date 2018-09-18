@@ -12,7 +12,7 @@
         "metadata": { "description": "Existing subnet that contains the domain controller" }
     },
 
-    "existingPublicIpPoolId": { "type": "string", "defaultValue": "",
+    "existingPublicIpPoolId": { "type": "string", "defaultValue": "null",
       "metadata": { "description": "Existing backend address Pool resource ID on existing Load balancer" }
     },
 
@@ -155,7 +155,7 @@
               "subnet": {
                 "id": "[variables('subnetId')]"
               },
-              "loadBalancerBackendAddressPools": "[if( equals(parameters('existingPublicIpPoolId'), ''), json('null'), variables('loadBalancerBackendAddressPools'))]"
+              "loadBalancerBackendAddressPools": "[if( equals(parameters('existingPublicIpPoolId'), 'null'), json('null'), variables('loadBalancerBackendAddressPools'))]"
             }
           }
         ]
