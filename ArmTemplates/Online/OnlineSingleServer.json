@@ -12,7 +12,9 @@
         "metadata": { "description": "Existing subnet that contains the domain controller" }
     },
 
-
+    "existingPublicIpPoolId": { "type": "string", "defaultValue": "",
+      "metadata": { "description": "Existing backend address Pool resource ID on existing Load balancer" }
+    },
 
     // values stored as tag of server
     "vmTags" : { "type": "object", "defaultValue": {},
@@ -115,7 +117,13 @@
     "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
     "availabilitySet": {
       "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
-    }
+    },
+
+    "loadBalancerBackendAddressPools": [
+      {
+        "id" : "[parameters('existingPublicIpPoolId')]"
+      }
+    ]
   },
   "resources": [
     {
@@ -146,7 +154,8 @@
               "privateIPAllocationMethod": "Dynamic",
               "subnet": {
                 "id": "[variables('subnetId')]"
-              }
+              },
+              "loadBalancerBackendAddressPools": "[if( equals(parameters('existingPublicIpPoolId'), ''), json('null'), variables('loadBalancerBackendAddressPools'))]"
             }
           }
         ]
