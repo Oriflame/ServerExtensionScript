@@ -73,7 +73,7 @@
           "existingVNETName":     { "value": "[parameters('existingVNETName')]" },
           "existingVnetRG":       { "value": "[parameters('existingVnetRG')]" },
           "existingSubnetName":   { "value": "[parameters('existingSubnetName')]" },
-          "existingPublicIpPoolId": "[if( equals(parameters('existingPublicIpPoolId'), 'null'), 'null', variables('existingPublicIpPoolIdObject') ]",
+          "existingPublicIpPoolId":{"value": "[if( equals(parameters('existingPublicIpPoolId'), 'null'), 'null', variables('existingPublicIpPoolIdObject'))]" },
           
           "vmName":               { "value": "[concat(parameters('vmNameBase'), if( greater(parameters('idFirst'), 99), '', padLeft(copyIndex(parameters('idFirst')), 2, '0')))]"  },
           "vmSize":               { "value": "[parameters('vmSize')]" },
