@@ -153,7 +153,7 @@
       }
     },
     {
-      "apiVersion": "2016-04-30-preview",
+      "apiVersion": "2018-06-01",
       "type":       "Microsoft.Compute/virtualMachines",
       "identity":   "[if( equals(parameters('managedidentity'), 'Yes'), variables('vmIdentity'), json('null'))]",
       "name":       "[parameters('vmName')]",
