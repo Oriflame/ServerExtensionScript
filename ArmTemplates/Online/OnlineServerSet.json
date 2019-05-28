@@ -34,6 +34,7 @@
     "tagF5poolMask":      { "type": "string" },
 
     "managedidentity":    { "type": "string" }, 
+    "useridentityName":   { "type": "string" }, 
     "aadGroupExec":       { "type": "securestring" },
     "aadGroupScript" :    { "type": "string" }, 
 
@@ -97,6 +98,7 @@
           },      
 
           "managedidentity":      { "value": "[parameters('managedidentity')]" },
+          "useridentityName":     { "value": "[parameters('useridentityName')]" },
           "aadGroupExec":         { "value": "[parameters('aadGroupExec')]" },
           "aadGroupScript":       { "value": "[parameters('aadGroupScript')]" },
 

@@ -21,22 +21,6 @@
       "metadata": { "description": "dicitonary of new server Tags" } 
     },
 
-    // "tagServerEnv": { "type": "string",
-    //   "metadata": { "description": "value of ServerEnv tag" }
-    // },
-    // "tagServerRegion": { "type": "string",
-    //   "metadata": { "description": "value of ServerRegion tag" }
-    // },    
-    // "tagOctopusEnv": { "type": "string",
-    //   "metadata": { "description": "value of OctopusEnv tag" }
-    // },
-    // "tagServerRole": { "type": "string",
-    //   "metadata": { "description": "value of ServerRole tag" }
-    // },
-    // "tagOctopusRole": { "type": "string",
-    //   "metadata": { "description": "value of OctopusRole tag" }
-    // },
-
     // VM parameterization
     "vmName": { "type": "string",
         "metadata": { "description": "Name of the VM" }
@@ -85,6 +69,7 @@
     },
     
     "managedidentity" : { "type": "string", "allowedValues": ["Yes", "No"], "defaultValue": "Yes" },
+    "useridentityName": { "type": "string", "defaultValue": "null" },
     
     "aadSetupTemplate": { "type": "string",
       "defaultvalue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSetup.json"
@@ -113,7 +98,13 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
   
-    "vmIdentity" : { "type": "systemAssigned" },
+    "userAssignedType": "[if( equals(parameters('userIdentity), 'null'), '', ', userAssigned')]",
+    "userAssignedId":   "[if( equals(parameters('userIdentity), 'null'), 'null', resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('userIdentity')) )]",
+    "userAssignedIdentity": { "[variables('userAssignedId')]": {} },
+    "vmIdentity" : { "type": "[concat('systemAssigned', variables('userAssignedType')]",                    
+                     "userAssignedIdentities":  "[if( equals(parameters('userIdentity), 'null'), json('null'), variables('userAssignedIdentity') )]"
+                   },
+
     "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
     "availabilitySet": {
       "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
