@@ -98,11 +98,11 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
   
-    "userAssignedType": "[if( equals(parameters('userIdentity), 'null'), '', ', userAssigned')]",
-    "userAssignedId":   "[if( equals(parameters('userIdentity), 'null'), 'null', resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('userIdentity')) )]",
+    "userAssignedType": "[if( equals(parameters('userIdentity'), 'null'), '', ', userAssigned' )]",
+    "userAssignedId":   "[if( equals(parameters('userIdentity'), 'null'), 'null', resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('userIdentity')) )]",
     "userAssignedIdentity": { "[variables('userAssignedId')]": {} },
-    "vmIdentity" : { "type": "[concat('systemAssigned', variables('userAssignedType')]",                    
-                     "userAssignedIdentities":  "[if( equals(parameters('userIdentity), 'null'), json('null'), variables('userAssignedIdentity') )]"
+    "vmIdentity" : { "type": "[concat('systemAssigned', variables('userAssignedType') )]",                    
+                     "userAssignedIdentities":  "[if( equals(parameters('userIdentity'), 'null'), json('null'), variables('userAssignedIdentity') )]"
                    },
 
     "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
