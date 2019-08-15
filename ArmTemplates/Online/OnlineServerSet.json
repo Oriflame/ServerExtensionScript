@@ -26,12 +26,17 @@
     "domainJoinOuPath":   { "type": "string" },
     "domainJoinOptions":  { "type": "int", "defaultValue": 3 },
 
+    "tagProject":         { "type": "string" },
+    "tagOwner":           { "type": "string" },    
     "tagServerEnv":       { "type": "string" },
     "tagServerRegion":    { "type": "string" },
     "tagOctopusEnv":      { "type": "string" },
     "tagServerRole":      { "type": "string" },
     "tagOctopusRole":     { "type": "string" },
     "tagF5poolMask":      { "type": "string" },
+
+    "schedule":           { "type": "string", "defaultValue": "No" },
+    "scheduleAutoShutDownTime": { "type": "string", "defaultValue": "0000" },
 
     "managedidentity":    { "type": "string" }, 
     "useridentityName":   { "type": "string" }, 
@@ -47,7 +52,8 @@
   "variables": { 
     "f5rewrServerEnv":    "[replace(parameters('tagF5PoolMask'),     '{ServerEnv}',    parameters('tagServerEnv'))]",
     "f5rewrServerRegion": "[replace(variables('f5rewrServerEnv'),    '{ServerRegion}', parameters('tagServerRegion'))]",
-    "f5pool":             "[replace(variables('f5rewrServerRegion'), '{ServerRole}',   parameters('tagServerRole'))]"
+    "f5rewrProject":      "[replace(variables('f5rewrServerRegion'), '{Project}',      parameters('tagProject'))]",
+    "f5pool":             "[replace(variables('f5rewrProject'),      '{ServerRole}',   parameters('tagServerRole'))]"
   },
   "resources": [
     {
@@ -88,8 +94,8 @@
           "domainJoinOptions":    { "value": "[parameters('domainJoinOptions')]" },
 
           "vmTags": { "value": {
-                        "Project"      : "V4",
-                        "Owner"        : "GlobalITCoEDevlInfraOps@oriflame.com",
+                        "Project"      : "[parameters('tagProject')]",
+                        "Owner"        : "[parameters('tagOwner')]",
                         "ServerEnv"    : "[parameters('tagServerEnv')]",
                         "Environment"  : "[parameters('tagServerEnv')]",
                         "ServerRegion" : "[parameters('tagServerRegion')]",
@@ -101,6 +107,9 @@
                       }
           },      
 
+          "schedule":             { "value": "[parameters('schedule')]" },
+          "scheduleAutoShutDownTime": { "value": "[parameters('scheduleAutoShutDownTime')]" },
+      
           "managedidentity":      { "value": "[parameters('managedidentity')]" },
           "useridentityName":     { "value": "[parameters('useridentityName')]" },
           "aadGroupExec":         { "value": "[parameters('aadGroupExec')]" },
