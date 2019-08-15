@@ -88,8 +88,12 @@
           "domainJoinOptions":    { "value": "[parameters('domainJoinOptions')]" },
 
           "vmTags": { "value": {
+                        "Project"      : "V4",
+                        "Owner"        : "GlobalITCoEDevlInfraOps@oriflame.com",
                         "ServerEnv"    : "[parameters('tagServerEnv')]",
+                        "Environment"  : "[parameters('tagServerEnv')]",
                         "ServerRegion" : "[parameters('tagServerRegion')]",
+                        "Region"       : "[parameters('tagServerRegion')]",
                         "OctopusEnv"   : "[parameters('tagOctopusEnv')]",
                         "ServerRole"   : "[parameters('tagServerRole')]",
                         "OctopusRole"  : "[parameters('tagOctopusRole')]",
