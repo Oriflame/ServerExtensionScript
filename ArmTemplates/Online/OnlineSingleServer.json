@@ -475,8 +475,8 @@
     /* schedule */
     {
       "type": "Microsoft.DevTestLab/schedules",
-      "apiVersion": "2016-05-15",
-      "name": "[concat('schedules_shutdown_computevm_', parameters('vmName'))]",
+      "apiVersion": "2018-09-15",
+      "name": "[concat('shutdown-computevm-', parameters('vmName'))]",
       "location": "[resourceGroup().location]",
       "condition": "[equals(parameters('schedule'), 'Yes')]",
       "properties": {
