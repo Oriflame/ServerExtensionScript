@@ -522,7 +522,7 @@
     {
       "apiVersion": "2018-06-01",      
       "type": "Microsoft.Compute/virtualMachines/extensions",      
-      "name": "[concat(deployment().name, '/CustomScript-', variables('initScriptFileName') )]",
+      "name": "[concat(parameters('vmName'), '/CustomScript-', variables('initScriptFileName') )]",
       "location": "[resourceGroup().location]",
 
       "properties": {
