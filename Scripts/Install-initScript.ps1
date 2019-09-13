@@ -69,7 +69,7 @@ try
     $metadataurl = "http://169.254.169.254/metadata/instance/compute?api-version=2019-06-04"
     $meta = Invoke-RestMethod -Uri $metadataurl -Headers @{ Metadata="true" }
     $setup.ServerEnv=($meta.tagslist | ?{ $_.name -eq 'ServerEnv' }).value.ToUpper()
-    $setup.IdentityResID = "/subscriptions/$($meta.SunscriptionID)/$rgidentity" 
+    $setup.IdentityResID = "/subscriptions/$($meta.SubscriptionID)/$rgidentity" 
 
 #download resource storage
     $url = ($setup.StorageAccount, $setup.Container, $setup.serverEnv, $oselRes) -join "/"
