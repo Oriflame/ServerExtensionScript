@@ -111,7 +111,7 @@
     "imageOffer": "WindowsServer",
   
     "hasUserIdentity": "[not(or(equals(parameters('useridentityCommon'), 'null'), equals(parameters('useridentityRegion'), 'null') ))]",
-    "userAssignedType": "[if( variabless('hasUserIdentity'), '', ', userAssigned' )]",
+    "userAssignedType": "[if( variables('hasUserIdentity'), '', ', userAssigned' )]",
     "userAssignedRegionId":   "[if( equals(parameters('useridentityRegion'), 'null'), 'REGION', resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('useridentityRegion')) )]",
     "userAssignedCommonId":   "[if( equals(parameters('useridentityCommon'), 'null'), 'COMMON', parameters('useridentityCommon') )]",    
     "userAssignedIdentity": { 
