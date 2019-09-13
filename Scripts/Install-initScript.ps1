@@ -45,12 +45,7 @@ try
 
 #region Decode Parameter
     $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
-    $setup = @{
-        # ServerEnv=$serverEnv.ToUpper()
-        StorageAccount = "https://oriflamestorage.blob.core.windows.net"
-        Container = "onlineassets"
-        IdentityResID = "/subscriptions/bf92e86b-7b0b-4d78-8785-c104ce8ffaf4/resourceGroups/ArmCommon/providers/Microsoft.ManagedIdentity/userAssignedIdentities/onl-arm-identity"
-    }
+    $setup = @{ }
     (ConvertFrom-Json $setupJson).psobject.properties | %{ $setup[$_.Name] = $_.Value }
 #endregion (decode)
 
