@@ -1,11 +1,6 @@
 [CmdletBinding()]
 param
 (
-    [Parameter(Mandatory=$false)] [string]$serverRole,
-    [Parameter(Mandatory=$true)]  [string]$serverEnv,
-    [Parameter(Mandatory=$false)] [string]$octopusEnv,
-    [Parameter(Mandatory=$false)] [string]$octopusRole,
-
     [Parameter(Mandatory=$true)] [string]$setupB64json
 )
 
@@ -30,96 +25,15 @@ function LogToFile( [string] $text )
     "$($date): $text" | Out-File $logFile -Append
 }
 
-function Get-ARMContainer( $vaultName, $secretName )
+function Get-Token($resource, $identity)
 {
-    # get OAuth token
-	$authpar = @{ Uri     = "http://localhost:50342/oauth2/token" 
-                  Body    = @{resource="https://vault.azure.net"}
+    $authpar = @{ Uri = "http://169.254.169.254/metadata/identity/oauth2/token?api-version=2018-02-01" 
+                  Body = @{resource="$resource"}
                   Headers = @{Metadata="true"}
                 }
-    $token = (Invoke-RestMethod @authpar).access_token
-    LogToFile "Token $([bool]$token)"
-
-    # get Vault Secret
-    
-    $kvpar = @{
-        uri = "https://$vaultName.vault.azure.net/secrets/$($secretName)?api-version=2016-10-01"	   
-        Headers = @{Authorization="Bearer $token"} 						      
-    }
-    
-    $secret = (Invoke-RestMethod @kvpar)
-    LogToFile "Secret '$secretName' ... $([bool]$secret)"
-    if ( $secret )
-    {
-        return $secret.Value | ConvertFrom-Json
-    }
-}
-
-# back compatibility
-
-function SelectMostMatchingOnly( $dict, $key, $suffix )
-{
-    $bestkey = "$key-$suffix" #shared pattern
-    LogToFile "Key=$key, Sfx=$suffix, Best=$bestkey"
-    LogToFile "Dict=$dict"
-    
-    LogToFile "Looking for [$bestkey]"
-    if ( $dict.Contains($bestkey) ) 
-    {
-        LogToFile "Specific key found [$bestkey]: $($dict[$bestkey])"
-        LogToFile "Replacing value [$key]: $($dict[$key])"
-        $dict[$key] = $dict[$bestkey]
-    } else {
-        LogToFile "Common key used [$key]:  $($dict[$key])"
-    }
-
-    #remove all 
-    $toremove = $dict.Keys | ?{ $_ -like "$key-*" }
-    $toremove | %{ 
-            LogToFile "Removing [$_]"
-            $dict.Remove($_) 
-        }
-}
-
-
-function Set-v10_Environment( $serverSetup )
-{
-    SelectMostMatchingOnly $serverSetup "BlobStorage" $serverSetup.serverRole
-
-    LogToFile "Setup config: $($serverSetup | Out-String)" 
-
-    if ( !$setup.serverEnv -or !$setup.SASToken )
-    {
-        throw "Mandatory parameters 'serverEnv' or 'SASToken' are not provided."
-    }
-
-    $rootStgContainer = "https://oriflamestorage.blob.core.windows.net/onlineassets"
-    $cfgJson = "config.json"
-
-    LogToFile "saving parameters as config file $oselDir\$cfgJson" 
-    $serverSetup | 
-        ConvertTo-Json | 
-        Out-File "$oselDir\$cfgJson"
-
-    $serverSetup.RootStgContainer =  $rootStgContainer    
-}
-
-
-function Set-v20_Environment( $serverSetup )
-{
-    if ( !$serverSetup.VaultName -or !$serverSetup.SecretName -or !$serverSetup.ServerEnv )
-    {
-        throw "Mandatory parameters: ['VaultName', 'ServerEnv'] are not provided."
-    }
-
-    $armcontainer = Get-ARMContainer -vaultName $serverSetup.VaultName -secretName $serverSetup.SecretName
-    if ( !$armcontainer )
-    {
-        throw "SAS token not found - check [$($serverSetup.VaultName) >> $($serverSetup.SecretName)] for apropriate secret."
-    }
-
-    $serverSetup.RootStgContainer = $armcontainer.Uri
-    $serverSetup.SasToken = $armcontainer.SAS 
+    if ( $identity ) { $authpar.Body["mi_res_id"] = $identity }
+    $meta = Invoke-RestMethod @authpar
+    $meta.access_token
 }
 
 #start
@@ -132,7 +46,10 @@ try
 #region Decode Parameter
     $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
     $setup = @{
-        ServerEnv=$serverEnv.ToUpper()
+        # ServerEnv=$serverEnv.ToUpper()
+        StorageAccount = "https://oriflamestorage.blob.core.windows.net"
+        Container = "onlineassets"
+        IdentityResID = "/subscriptions/bf92e86b-7b0b-4d78-8785-c104ce8ffaf4/resourceGroups/ArmCommon/providers/Microsoft.ManagedIdentity/userAssignedIdentities/onl-arm-identity"
     }
     (ConvertFrom-Json $setupJson).psobject.properties | %{ $setup[$_.Name] = $_.Value }
 #endregion (decode)
@@ -144,34 +61,24 @@ try
 #download resource storage
     if (!(test-path $oselDir)) {mkdir $oselDir }
 
-# file version
-    switch ( $setup.Version )
-    {
-        "1.0" { #version with secures in serversetup (expected config.json) 
-            $setup.octopusEnv=$octopusEnv 
-            $setup.serverRole=$serverRole.ToLower()
-            $setup.octopusRole=$octopusRole
-            Set-v10_Environment $setup
-         }
-        "2.0" { #version with keyvault
-            Set-v20_Environment $setup
-         }
-        default { 
-            throw "Unknown Server Setup version: [$($setup.Version)] "
-        } 
-    }
-
-
 #enable samba    
     # LogToFile "Enabling Samba" 
     # netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
 
+#get Metadata
+    $metadataurl = "http://169.254.169.254/metadata/instance/compute?api-version=2019-06-04"
+    $meta = Invoke-RestMethod -Uri $metadataurl -Headers @{ Metadata="true" }
+    $setup.ServerEnv=($meta.tagslist | ?{ $_.name -eq 'ServerEnv' }).value.ToUpper()
 
 #download resource storage
-    $url = ($setup.RootStgContainer, $setup.serverEnv, $oselRes) -join "/"
+    $url = ($setup.StorageAccount, $setup.Container, $setup.serverEnv, $oselRes) -join "/"
     $oselZip = "$oselDir\$oselRes"
-    LogToFile "downloading OSEL: $url ($([bool]$setup.SasToken) >> $oselZip" 
-    (New-Object System.Net.WebClient).DownloadFile("$url$($setup.SASToken)", $oselZip )
+    LogToFile "downloading OSEL: $url >> $oselZip" 
+
+    $token = Get-Token $setup.StorageAccount $setup.IdentityResID
+    $headers = @{Authorization="Bearer $token" 
+                 "x-ms-version"="2019-02-02"}
+    Invoke-WebRequest -Uri $url -Method GET -Headers $headers -OutFile $oselZip
 
 #unzip
     LogToFile "unziping OSEL to [$oselDir]"   
