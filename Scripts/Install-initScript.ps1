@@ -45,7 +45,7 @@ try
 {
 
 #region Decode Parameter
-    $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
+    #$setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
     $setup = @{ 
         Version = '3.0'
         StorageAccount = "https://oriflamestorage.blob.core.windows.net"
