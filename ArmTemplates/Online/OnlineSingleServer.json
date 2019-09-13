@@ -88,6 +88,12 @@
     //     "defaultValue": "",
     //     "metadata": { "description": "add group execution" }
     // },
+    "InitScriptServerSetup": { "type": "string",
+                 "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
+    },
+    "InitScriptUri": { "type": "string", 
+               "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/Scripts/Install-initScript.ps1"
+    },
 
     "DiagnosticsStorageAccountName": { "type": "string",
         "metadata": { "description": "Storage account name used for monitoring" }
@@ -120,6 +126,15 @@
     "availabilitySet": {
       "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
     },
+
+
+    "initScriptSplit": "[split(parameters('InitScriptUri'), '/')]",
+    "initScriptFirstFileName": "[variables('initScriptSplit')[sub(length(variables('initScriptSplit')), 1)]]",
+    "initScriptBreak": "[split(variables('initScriptFirstFileName'), '?')]",
+    "initScriptFileName": "[variables('initScriptBreak')[0]]",
+
+    "initScriptExecuteBase": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('initScriptFileName'), ' -setupB64json ', base64(parameters('InitScriptServerSetup')) )]",
+
 
     "loadBalancerBackendAddressPools": [
       {
@@ -502,30 +517,30 @@
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
       ]
-    // },
+    },
 
-    // {
-    //   "apiVersion": "2015-01-01",
-    //   "name": "[concat(deployment().name, '-AAD)')]",
-    //   "type": "Microsoft.Resources/deployments",
-    //   "condition": "[equals(parameters('managedidentity'), 'Yes')]",
-    //   "properties": {
-    //     "mode": "Incremental",
-    //     "templateLink": {
-    //       "uri": "[parameters('aadSetupTemplate')]",
-    //       "contentVersion": "1.0.0.0"
-    //     },
-    //     "parameters": {
-    //       "vmName":             { "value": "[parameters('vmName')]" },
-    //       // add-aadGroup - execution must be aligned with the scripting
-    //       "aadGroupScript":     { "value": "[parameters('aadGroupScript')]" },
-    //       "aadGroupExec":       { "value": "[parameters('aadGroupExec')]" }   
-    //     }
-    //   },
-    //   "dependsOn": [
-    //     "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
-    //     "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/joindomain')]"
-    //   ]
+    {
+      "apiVersion": "2018-06-01",      
+      "type": "Microsoft.Compute/virtualMachines/extensions",      
+      "name": "[concat(deployment().name, 'CustomScript-', variables('initScriptFileName') )]",
+      "location": "[resourceGroup().location]",
+
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.9",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": "[split(parameters('initScriptUri'), ' ')]"
+        },
+        "protectedSettings": {
+          "commandToExecute": "[concat (variables('initScriptExecuteBase'), ' -serverEnv \"', parameters('machines')[copyIndex()].ServerEnv, '\" -octopusEnv \"', parameters('machines')[copyIndex()].OctopusEnv, '\" -serverRole \"', parameters('machines')[copyIndex()].ServerRole, '\" -octopusRole \"', parameters('machines')[copyIndex()].OctopusRole, '\" ')]"
+        }
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
+        "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/joindomain')]"
+      ]
     }
   ],
   "outputs": {

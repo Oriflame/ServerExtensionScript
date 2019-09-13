@@ -47,9 +47,14 @@
 
     "DiagnosticsStorageAccountName": { "type": "string" },
 
+    "InitScriptServerSetup": { "type": "string" },
+    "InitScriptUri":         { "type": "string", 
+                       "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/Scripts/Install-initScript.ps1"
+    },
     "SingleServerTemplateUri": { "type": "string", 
-      "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
+                         "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
     }
+
   },
   "variables": { 
     "f5rewrServerEnv":    "[replace(parameters('tagF5PoolMask'),     '{ServerEnv}',    parameters('tagServerEnv'))]",
@@ -113,12 +118,12 @@
           "scheduleAutoShutDownTime": { "value": "[parameters('scheduleAutoShutDownTime')]" },
       
           "managedidentity":      { "value": "[parameters('managedidentity')]" },
-          // "useridentityName":     { "value": "[parameters('useridentityName')]" },
+
           "useridentityCommon":   { "value": "[parameters('useridentityCommon')]" },
           "useridentityRegion":   { "value": "[parameters('useridentityRegion')]" },
-          // "aadGroupExec":         { "value": "[parameters('aadGroupExec')]" },
-          // "aadGroupScript":       { "value": "[parameters('aadGroupScript')]" },
 
+          "InitScriptServerSetup":         { "value": "[parameters('InitScriptServerSetup')]"},
+          "InitScriptUri":                 { "value": "[parameters('InitScriptUri')]"},
           "DiagnosticsStorageAccountName": { "value": "[parameters('DiagnosticsStorageAccountName')]"}
         }
       }
