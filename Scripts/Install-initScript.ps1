@@ -9,6 +9,7 @@ param
     $oselDir = "c:\OSEL"
     $setupScript = "$oselDir\StandAloneScripts\ServerSetup\init-server.ps1"
     $oselRes = "osel.zip"
+    $rgidentity = "resourceGroups/ArmCommon/providers/Microsoft.ManagedIdentity/userAssignedIdentities/onl-arm-identity"
 #endregion
 
 
@@ -45,8 +46,12 @@ try
 
 #region Decode Parameter
     $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
-    $setup = @{ }
-    (ConvertFrom-Json $setupJson).psobject.properties | %{ $setup[$_.Name] = $_.Value }
+    $setup = @{ 
+        Version = '3.0'
+        StorageAccount = "https://oriflamestorage.blob.core.windows.net"
+        Container = "onlineassets"                                       
+    }  
+    #(ConvertFrom-Json $setupJson).psobject.properties | %{ $setup[$_.Name] = $_.Value }
 #endregion (decode)
 
 #enable samba    
@@ -64,6 +69,7 @@ try
     $metadataurl = "http://169.254.169.254/metadata/instance/compute?api-version=2019-06-04"
     $meta = Invoke-RestMethod -Uri $metadataurl -Headers @{ Metadata="true" }
     $setup.ServerEnv=($meta.tagslist | ?{ $_.name -eq 'ServerEnv' }).value.ToUpper()
+    $setup.IdentityResID = "/subscriptions/$($meta.SunscriptionID)/$rgidentity" 
 
 #download resource storage
     $url = ($setup.StorageAccount, $setup.Container, $setup.serverEnv, $oselRes) -join "/"
