@@ -534,7 +534,7 @@
           "fileUris": "[split(parameters('initScriptUri'), ' ')]"
         },
         "protectedSettings": {
-          "commandToExecute": "[concat (variables('initScriptExecuteBase'), ' -serverEnv \"', parameters('machines')[copyIndex()].ServerEnv, '\" -octopusEnv \"', parameters('machines')[copyIndex()].OctopusEnv, '\" -serverRole \"', parameters('machines')[copyIndex()].ServerRole, '\" -octopusRole \"', parameters('machines')[copyIndex()].OctopusRole, '\" ')]"
+          "commandToExecute": "[variables('initScriptExecuteBase')]"
         }
       },
       "dependsOn": [
