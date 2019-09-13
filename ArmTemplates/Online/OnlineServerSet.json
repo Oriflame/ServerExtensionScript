@@ -39,9 +39,11 @@
     "scheduleAutoShutDownTime": { "type": "string", "defaultValue": "0000" },
 
     "managedidentity":    { "type": "string" }, 
-    "useridentityName":   { "type": "string" }, 
-    "aadGroupExec":       { "type": "securestring" },
-    "aadGroupScript" :    { "type": "string" }, 
+    // "useridentityName":   { "type": "string" }, 
+    "useridentityCommon": { "type": "string" }, 
+    "useridentityRegion": { "type": "string" }, 
+    // "aadGroupExec":       { "type": "securestring" },
+    // "aadGroupScript" :    { "type": "string" }, 
 
     "DiagnosticsStorageAccountName": { "type": "string" },
 
@@ -111,9 +113,11 @@
           "scheduleAutoShutDownTime": { "value": "[parameters('scheduleAutoShutDownTime')]" },
       
           "managedidentity":      { "value": "[parameters('managedidentity')]" },
-          "useridentityName":     { "value": "[parameters('useridentityName')]" },
-          "aadGroupExec":         { "value": "[parameters('aadGroupExec')]" },
-          "aadGroupScript":       { "value": "[parameters('aadGroupScript')]" },
+          // "useridentityName":     { "value": "[parameters('useridentityName')]" },
+          "useridentityCommon":   { "value": "[parameters('useridentityCommon')]" },
+          "useridentityRegion":   { "value": "[parameters('useridentityRegion')]" },
+          // "aadGroupExec":         { "value": "[parameters('aadGroupExec')]" },
+          // "aadGroupScript":       { "value": "[parameters('aadGroupScript')]" },
 
           "DiagnosticsStorageAccountName": { "value": "[parameters('DiagnosticsStorageAccountName')]"}
         }

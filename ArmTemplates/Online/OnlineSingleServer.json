@@ -72,20 +72,22 @@
         "metadata": { "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx" }
     },
     
-    "managedidentity" : { "type": "string", "allowedValues": ["Yes", "No"], "defaultValue": "Yes" },
-    "useridentityName": { "type": "string", "defaultValue": "null" },
+    "managedidentity" :   { "type": "string", "allowedValues": ["Yes", "No"], "defaultValue": "Yes" },
+    // "useridentityName":   { "type": "string", "defaultValue": "null" },
+    "useridentityCommon": { "type": "string", "defaultValue": "null" },
+    "useridentityRegion": { "type": "string", "defaultValue": "null" },
     
-    "aadSetupTemplate": { "type": "string",
-      "defaultvalue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSetup.json"
-    },
-    "aadGroupScript" : { "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/Scripts/add-aadGroup.ps1",
-      "metadata": { "description": "Uri of custom script extension file." }  
-    },
-    "aadGroupExec": { "type": "securestring",
-        "defaultValue": "",
-        "metadata": { "description": "add group execution" }
-    },
+    // "aadSetupTemplate": { "type": "string",
+    //   "defaultvalue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSetup.json"
+    // },
+    // "aadGroupScript" : { "type": "string",
+    //   "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/Scripts/add-aadGroup.ps1",
+    //   "metadata": { "description": "Uri of custom script extension file." }  
+    // },
+    // "aadGroupExec": { "type": "securestring",
+    //     "defaultValue": "",
+    //     "metadata": { "description": "add group execution" }
+    // },
 
     "DiagnosticsStorageAccountName": { "type": "string",
         "metadata": { "description": "Storage account name used for monitoring" }
@@ -102,11 +104,16 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
   
-    "userAssignedType": "[if( equals(parameters('useridentityName'), 'null'), '', ', userAssigned' )]",
-    "userAssignedId":   "[if( equals(parameters('useridentityName'), 'null'), 'null', resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('userIdentityName')) )]",
-    "userAssignedIdentity": { "[variables('userAssignedId')]": {} },
-    "vmIdentity" : { "type": "[concat('systemAssigned', variables('userAssignedType') )]",                    
-                     "userAssignedIdentities":  "[if( equals(parameters('useridentityName'), 'null'), json('null'), variables('userAssignedIdentity') )]"
+    "hasUserIdentity": "[not(or(equals(parameters('useridentityCommon'), 'null'), equals(parameters('useridentityRegion'), 'null') ))]",
+    "userAssignedType": "[if( variabless('hasUserIdentity'), '', ', userAssigned' )]",
+    "userAssignedRegionId":   "[if( equals(parameters('useridentityRegion'), 'null'), 'REGION', resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('useridentityRegion')) )]",
+    "userAssignedCommonId":   "[if( equals(parameters('useridentityCommon'), 'null'), 'COMMON', parameters('useridentityCommon') )]",    
+    "userAssignedIdentity": { 
+        "[variables('userAssignedRegionId')]": {}, 
+        "[variables('userAssignedCommonId')]": {} 
+    },
+    "vmIdentity" : { "type": "[concat('systemAssigned', variables('userAssignedType') )]",
+                     "userAssignedIdentities":  "[if( variables('hasUserIdentity'), json('null'), variables('userAssignedIdentity') )]"
                    },
 
     "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
@@ -495,30 +502,30 @@
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
       ]
-    },
+    // },
 
-    {
-      "apiVersion": "2015-01-01",
-      "name": "[concat(deployment().name, '-AAD)')]",
-      "type": "Microsoft.Resources/deployments",
-      "condition": "[equals(parameters('managedidentity'), 'Yes')]",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[parameters('aadSetupTemplate')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "vmName":             { "value": "[parameters('vmName')]" },
-          // add-aadGroup - execution must be aligned with the scripting
-          "aadGroupScript":     { "value": "[parameters('aadGroupScript')]" },
-          "aadGroupExec":       { "value": "[parameters('aadGroupExec')]" }   
-        }
-      },
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
-        "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/joindomain')]"
-      ]
+    // {
+    //   "apiVersion": "2015-01-01",
+    //   "name": "[concat(deployment().name, '-AAD)')]",
+    //   "type": "Microsoft.Resources/deployments",
+    //   "condition": "[equals(parameters('managedidentity'), 'Yes')]",
+    //   "properties": {
+    //     "mode": "Incremental",
+    //     "templateLink": {
+    //       "uri": "[parameters('aadSetupTemplate')]",
+    //       "contentVersion": "1.0.0.0"
+    //     },
+    //     "parameters": {
+    //       "vmName":             { "value": "[parameters('vmName')]" },
+    //       // add-aadGroup - execution must be aligned with the scripting
+    //       "aadGroupScript":     { "value": "[parameters('aadGroupScript')]" },
+    //       "aadGroupExec":       { "value": "[parameters('aadGroupExec')]" }   
+    //     }
+    //   },
+    //   "dependsOn": [
+    //     "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
+    //     "[concat(resourceId('Microsoft.Compute/virtualMachines', parameters('vmName')),'/extensions/joindomain')]"
+    //   ]
     }
   ],
   "outputs": {
