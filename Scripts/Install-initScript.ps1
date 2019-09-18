@@ -37,6 +37,89 @@ function Get-Token($resource, $identity)
     $meta.access_token
 }
 
+function Get-ServerSetup($b64json)
+{
+    try {    
+        $setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($b64json))
+        LogToFile "B64 decode: $setupJson" 
+        $setup = @{}
+        (ConvertFrom-Json $setupJson).psobject.properties | %{ $setup[$_.Name] = $_.Value }
+        return $setup
+    }
+    catch {
+        LogToFile "B64 decode [$b64json]`nERROR: $_" 
+    }
+
+    # fallback
+    $setup = @{ 
+        Version = '3.0'
+        StorageAccount = "https://oriflamestorage.blob.core.windows.net"
+        Container = "onlineassets"
+        # temprary usage before the manage identity will be referenced by OSEL
+        VaultName = "https://onlinetestarmvault.vault.azure.net/"                                       
+        VaultSecretAAD="add-aadGroup"
+    }      
+}
+
+function Add-ToAadGroup( [string] $groupName, [string] $computerName, [pscredential] $credential ) 
+{    
+    LogToFile( "Connect-AzureAD as $($credential.UserName)")       
+
+    Connect-AzureAD -Credential $credential | Out-Null
+
+    $aadGroup = (Get-AzureADGroup -SearchString $groupName | Select-Object -First 1)
+    if ( !$aadGroup ) { throw "Group [$groupName] does not exist in Azure AD" }
+    
+    $aadComputerPrincipal = (Get-AzureADServicePrincipal -SearchString $computerName | Select-Object -First 1)
+    if ( !$aadComputerPrincipal ) { throw "Server Principal [$computerName] does not exist in Azure AD - check MSI (Managed service identity) is ON" }
+
+    $parAdd = @{
+        ObjectId    = $aadGroup.objectid 
+        RefObjectId = $aadComputerPrincipal.objectid
+    }       
+    LogToFile( "Adding machine $computerName[$($parAdd.RefObjectId)] to $groupName[$($parAdd.ObjectId)] ... ")       
+    Add-AzureADGroupMember @parAdd
+    LogToFile( "... OK")
+}
+
+function Invoke-aadScript
+{
+    param(
+        [string] $vault,
+        [string] $secret,
+        [string] $identity
+    )
+
+    $token = Get-Token -resource "https://vault.azure.net" -identity $identity
+    $secretId = (Get-VaultMatchingSecrets -vaultName $vault -secretName $secret -keyVaultToken $token).id
+
+    if ( -not $secretId )
+    {
+        Log "$secret`: does NOT exist!"
+        return;
+    }
+
+    $s = Invoke-RestMethod -Uri "$secretId?api-version=2016-10-01" -Headers @{Authorization="Bearer $token"}
+    $cmd = $s.Value -split ' '
+
+    $groupName = $cmd[$cmd.IndexOf("-groupName")+1]
+    $credB64json  = $cmd[$cmd.IndexOf("-credB64json")+1]    
+    $techAccount = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($credB64json)) | 
+                        ConvertFrom-Json
+    if ( !$techAccount.User -or !$techAccount.Password )
+    {
+        throw "Missing mandatory credential parameters"
+    }                        
+
+    LogToFile( "RegisterPSModules")
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+    Install-Module AzureAD -Force     
+
+    $credential = New-Object System.Management.Automation.PSCredential($techAccount.User, (ConvertTo-SecureString -String $techAccount.Password -AsPlainText -Force))
+    Add-ToAadGroup -groupName $groupName -computerName $env:ComputerName -credential $credential        
+} 
+
+
 #start
     LogToFile "Current folder $currentScriptFolder" 
     Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -45,13 +128,8 @@ try
 {
 
 #region Decode Parameter
-    #$setupJson = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($setupB64json))
-    $setup = @{ 
-        Version = '3.0'
-        StorageAccount = "https://oriflamestorage.blob.core.windows.net"
-        Container = "onlineassets"                                       
-    }  
-    #(ConvertFrom-Json $setupJson).psobject.properties | %{ $setup[$_.Name] = $_.Value }
+    $setup = Get-ServerSetup -b64json $setupB64json
+
 #endregion (decode)
 
 #enable samba    
@@ -70,6 +148,9 @@ try
     $meta = Invoke-RestMethod -Uri $metadataurl -Headers @{ Metadata="true" }
     $setup.ServerEnv=($meta.tagslist | ?{ $_.name -eq 'ServerEnv' }).value.ToUpper()
     $setup.IdentityResID = "/subscriptions/$($meta.SubscriptionID)/$rgidentity" 
+
+#ensure systemidentity membership
+    Invoke-aadScript -vault $setup.VaultName -secret $setup.VaultSecretAAD -identity $setup.IdentityResID
 
 #download resource storage
     $url = ($setup.StorageAccount, $setup.Container, $setup.serverEnv, $oselRes) -join "/"
