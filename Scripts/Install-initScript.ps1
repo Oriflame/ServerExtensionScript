@@ -90,6 +90,7 @@ function Invoke-aadScript
         [string] $identity
     )
 
+    LogToFile "AAD System based on $identity"
     $token = Get-Token -resource "https://vault.azure.net" -identity $identity
     $secretId = (Get-VaultMatchingSecrets -vaultName $vault -secretName $secret -keyVaultToken $token).id
 
@@ -148,7 +149,7 @@ try
     $meta = Invoke-RestMethod -Uri $metadataurl -Headers @{ Metadata="true" }
     LogToFile "Metadata: $($meta.tagsList | Out-String)"
     $setup.ServerEnv=($meta.tagslist | ?{ $_.name -eq 'ServerEnv' }).value.ToUpper()
-    $setup.IdentityResID = @("/subscriptions",$meta.SubscriptionID, $rgidentity) -join "/"
+    $setup.IdentityResID = @("/subscriptions", $meta.SubscriptionID, $rgidentity) -join "/"
 
 #ensure systemidentity membership
     Invoke-aadScript -vault $setup.VaultName -secret $setup.VaultSecretAAD -identity $setup.IdentityResID
