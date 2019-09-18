@@ -146,8 +146,9 @@ try
 #get Metadata
     $metadataurl = "http://169.254.169.254/metadata/instance/compute?api-version=2019-06-04"
     $meta = Invoke-RestMethod -Uri $metadataurl -Headers @{ Metadata="true" }
+    LogToFile "Tags: ${meta.tagslist}"
     $setup.ServerEnv=($meta.tagslist | ?{ $_.name -eq 'ServerEnv' }).value.ToUpper()
-    $setup.IdentityResID = "/subscriptions/$($meta.SubscriptionID)/$rgidentity" 
+    $setup.IdentityResID = "/subscriptions/${meta.SubscriptionID}/$rgidentity" 
 
 #ensure systemidentity membership
     Invoke-aadScript -vault $setup.VaultName -secret $setup.VaultSecretAAD -identity $setup.IdentityResID
