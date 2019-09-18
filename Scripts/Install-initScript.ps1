@@ -96,10 +96,10 @@ function Invoke-aadScript
 
     
     $s = Invoke-RestMethod -Uri $secretUri -Headers @{Authorization="Bearer $token"}
-    LogToFile "Value $($s.Value)"
+    # LogToFile "Value: $($s.Value)"
     $cmd = $s.Value -split ' '
 
-    $groupName = $cmd[$cmd.IndexOf("-groupName")+1]
+    $groupName = $cmd[$cmd.IndexOf("-groupName")+1].Trim('"')
     $credB64json  = $cmd[$cmd.IndexOf("-credB64json")+1]    
     $techAccount = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($credB64json)) | 
                         ConvertFrom-Json
@@ -108,7 +108,7 @@ function Invoke-aadScript
         throw "Missing mandatory credential parameters"
     }                        
 
-    LogToFile( "RegisterPSModules")
+    # LogToFile( "RegisterPSModules")
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
     Install-Module AzureAD -Force     
 
