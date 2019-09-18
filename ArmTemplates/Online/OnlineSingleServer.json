@@ -99,7 +99,7 @@
     "imageOffer": "WindowsServer",
   
     "hasUserIdentity": "[not(and(equals(parameters('useridentityCommon'), 'null'), equals(parameters('useridentityRegion'), 'null') ))]",
-    "userAssignedType": "[if( variables('hasUserIdentity'), '', ', userAssigned' )]",
+    "userAssignedType": "[if( variables('hasUserIdentity'), ', userAssigned', '' )]",
     "userAssignedRegionId":   "[if( equals(parameters('useridentityRegion'), 'null'), 'REGION', resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('useridentityRegion')) )]",
     "userAssignedCommonId":   "[if( equals(parameters('useridentityCommon'), 'null'), 'COMMON', parameters('useridentityCommon') )]",    
     "userAssignedIdentity": { 
@@ -107,7 +107,7 @@
         "[variables('userAssignedCommonId')]": {} 
     },
     "vmIdentity" : { "type": "[concat('systemAssigned', variables('userAssignedType') )]",
-                     "userAssignedIdentities":  "[if( variables('hasUserIdentity'), json('null'), variables('userAssignedIdentity') )]"
+                     "userAssignedIdentities":  "[if( variables('hasUserIdentity'), variables('userAssignedIdentity'), json('null') )]"
                    },
 
     "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
@@ -543,6 +543,10 @@
     "VMIdentity": {
       "type": "object",
       "value": "[variables('vmIdentity')]"
+    },
+    "UserAssignedIdentity": {
+      "type": "object",
+      "value": "[variables('userAssignedIdentity')]"
     }
   }
 }

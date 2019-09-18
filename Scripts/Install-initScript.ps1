@@ -90,10 +90,12 @@ function Invoke-aadScript
         [string] $identity
     )
 
-    LogToFile "AAD System based on $identity"
+    $secretUri = "$($vault)secrets/$($secret)?api-version=2016-10-01"
+    LogToFile "AAD System based on $identity`: $secretUri"
     $token = Get-Token -resource "https://vault.azure.net" -identity $identity
 
-    $s = Invoke-RestMethod -Uri "$($vault)secrets/$secret?api-version=2016-10-01" -Headers @{Authorization="Bearer $token"}
+    
+    $s = Invoke-RestMethod -Uri $secretUri -Headers @{Authorization="Bearer $token"}
     LogToFile "Value $($s.Value)"
     $cmd = $s.Value -split ' '
 
