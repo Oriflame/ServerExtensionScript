@@ -73,21 +73,9 @@
     },
     
     "managedidentity" :   { "type": "string", "allowedValues": ["Yes", "No"], "defaultValue": "Yes" },
-    // "useridentityName":   { "type": "string", "defaultValue": "null" },
     "useridentityCommon": { "type": "string", "defaultValue": "null" },
     "useridentityRegion": { "type": "string", "defaultValue": "null" },
     
-    // "aadSetupTemplate": { "type": "string",
-    //   "defaultvalue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSetup.json"
-    // },
-    // "aadGroupScript" : { "type": "string",
-    //   "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/Scripts/add-aadGroup.ps1",
-    //   "metadata": { "description": "Uri of custom script extension file." }  
-    // },
-    // "aadGroupExec": { "type": "securestring",
-    //     "defaultValue": "",
-    //     "metadata": { "description": "add group execution" }
-    // },
     "InitScriptServerSetup": { "type": "string",
                  "metadata": { "description": "Json ASCII string object {SASToken, RedisCache, BLOBStorage, ...}" }
     },
@@ -110,7 +98,7 @@
     "imagePublisher": "MicrosoftWindowsServer",
     "imageOffer": "WindowsServer",
   
-    "hasUserIdentity": "[not(or(equals(parameters('useridentityCommon'), 'null'), equals(parameters('useridentityRegion'), 'null') ))]",
+    "hasUserIdentity": "[not(and(equals(parameters('useridentityCommon'), 'null'), equals(parameters('useridentityRegion'), 'null') ))]",
     "userAssignedType": "[if( variables('hasUserIdentity'), '', ', userAssigned' )]",
     "userAssignedRegionId":   "[if( equals(parameters('useridentityRegion'), 'null'), 'REGION', resourceID('Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('useridentityRegion')) )]",
     "userAssignedCommonId":   "[if( equals(parameters('useridentityCommon'), 'null'), 'COMMON', parameters('useridentityCommon') )]",    
@@ -551,6 +539,10 @@
     "PrivateIPAddress" : {
       "type" : "string",
       "value": "[reference(variables('nicName')).ipConfigurations[0].properties.privateIPAddress]"
+    },
+    "VMIdentity": {
+      "type": "object",
+      "value": "[variables('vmIdentity')]"
     }
   }
 }

@@ -92,15 +92,9 @@ function Invoke-aadScript
 
     LogToFile "AAD System based on $identity"
     $token = Get-Token -resource "https://vault.azure.net" -identity $identity
-    $secretId = (Get-VaultMatchingSecrets -vaultName $vault -secretName $secret -keyVaultToken $token).id
 
-    if ( -not $secretId )
-    {
-        Log "$secret`: does NOT exist!"
-        return;
-    }
-
-    $s = Invoke-RestMethod -Uri "$secretId?api-version=2016-10-01" -Headers @{Authorization="Bearer $token"}
+    $s = Invoke-RestMethod -Uri "$($vault)secrets/$secret?api-version=2016-10-01" -Headers @{Authorization="Bearer $token"}
+    LogToFile "Value $($s.Value)"
     $cmd = $s.Value -split ' '
 
     $groupName = $cmd[$cmd.IndexOf("-groupName")+1]
