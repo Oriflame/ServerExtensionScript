@@ -165,8 +165,9 @@ try
     # LogToFile "Enabling Samba" 
     # netsh advfirewall firewall set rule group="File and Printer Sharing" new enable=Yes
 
-#download resource storage
-    if (!(test-path $oselDir)) {mkdir $oselDir }
+#OSEL directory
+    if ( test-path $oselDir ) { Remove-Item -Recurse -Force $oselDir | Out-Null }
+    mkdir $oselDir
 
 #enable samba    
     # LogToFile "Enabling Samba" 
@@ -198,10 +199,6 @@ try
     Invoke-WebRequest -Uri $url -Method GET -Headers $headers -OutFile $oselZip
 
 #unzip
-    if ( Test-Path $oselDir )
-    {
-        Remove-Item -Recurse -Force $oselDir | Out-Null
-    }
     LogToFile "unziping OSEL to [$oselDir]"   
     [System.IO.Compression.ZipFile]::ExtractToDirectory($oselZip, $oselDir)
 
