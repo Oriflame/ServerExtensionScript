@@ -41,7 +41,7 @@ function Set-OriInitScriptProperty($name, $value)
 {
 	$path = "HKLM:\SOFTWARE\Oriflame\InitScript"
 
-	LogToFile "Registry Set: $path >> $name"
+	LogToFile "Registry Set: $name >> $value"
 	if (-not (Test-Path -Path $path))
 	{
 		New-Item -Path (Split-Path -Path $path) -Name (Split-Path -Path $path -Leaf) -Force | Out-Null
@@ -50,15 +50,23 @@ function Set-OriInitScriptProperty($name, $value)
 	Set-ItemProperty -Path $path -Name $name -Value $value -ErrorAction Stop;
 }
 
-function Set-MetadataToRegistry($meta, $serversetup)
+function Set-MetadataToRegistry($meta, $tags, $serversetup)
 {
-    Set-OriInitScriptProperty "vmAzureId" $meta.resourceId
-    $tags = @{}
-    $meta.tagslist | %{ $tags[$_.name] = $_.value }
-    Set-OriInitScriptProperty "vmTags"        ($tags | ConvertTo-Json)
-    Set-OriInitScriptProperty "vmIdentity"    $serverSetup.IdentityResID
-    Set-OriInitScriptProperty "vaultname"     (($serverSetup.vaultname -replace 'https://') -split '\.')[0]
-    Set-OriInitScriptProperty "UrlRoot"       (@($setup.StorageAccount, $setup.Container, $setup.serverEnv) -join "/")
+    Set-OriInitScriptProperty "vmAzureId"  $meta.resourceId
+    Set-OriInitScriptProperty "vmTags"    ($tags | ConvertTo-Json)
+
+    if ( $serverSetup.IdentityResID )
+    {
+        Set-OriInitScriptProperty "vmIdentity"    $serverSetup.IdentityResID
+    }
+    if ( $serverSetup.vaultname )
+    {
+        Set-OriInitScriptProperty "vaultname"     (($serverSetup.vaultname -replace 'https://') -split '\.')[0]
+    }
+    if ( $setup.UrlRoot )
+    {
+        Set-OriInitScriptProperty "UrlRoot"       $setup.UrlRoot
+    }
 }
 
 function Get-ServerSetup($b64json)
@@ -106,15 +114,9 @@ function Add-ToAadGroup( [string] $groupName, [string] $computerName, [pscredent
     LogToFile( "... OK")
 }
 
-function Invoke-aadScript
+function Invoke-AadScript([string] $secretUrl, [string] $identity )
 {
-    param(
-        [string] $vault,
-        [string] $secret,
-        [string] $identity
-    )
-
-    $secretUri = "$($vault)secrets/$($secret)?api-version=2016-10-01"
+    $secretUri = "$($secretUrl)?api-version=2016-10-01"
     LogToFile "AAD System based on $identity`: $secretUri"
     $token = Get-Token -resource "https://vault.azure.net" -identity $identity
 
@@ -123,7 +125,7 @@ function Invoke-aadScript
     # LogToFile "Value: $($s.Value)"
     $cmd = $s.Value -split ' '
 
-    $groupName = $cmd[$cmd.IndexOf("-groupName")+1].Trim('"')
+    $groupName    = $cmd[$cmd.IndexOf("-groupName")  +1].Trim('"')
     $credB64json  = $cmd[$cmd.IndexOf("-credB64json")+1]    
     $techAccount = [System.Text.Encoding]::ASCII.GetString([System.Convert]::FromBase64String($credB64json)) | 
                         ConvertFrom-Json
@@ -173,17 +175,20 @@ try
 #get Metadata
     $metadataurl = "http://169.254.169.254/metadata/instance/compute?api-version=2019-06-04"
     $meta = Invoke-RestMethod -Uri $metadataurl -Headers @{ Metadata="true" }
-    LogToFile "Metadata: $($meta.tagsList | Out-String)"    
-    $setup.ServerEnv=($meta.tagslist | ?{ $_.name -eq 'ServerEnv' }).value.ToUpper()
-    $setup.IdentityResID = @("/subscriptions", $meta.SubscriptionID, $rgidentity) -join "/"
+    $tags = @{}
+    $meta.tagslist | %{ $tags[$_.name] = $_.value }
+    LogToFile "Tags: $($tags | ConvertTo-Json)"
 
-    Set-MetadataToRegistry $meta $setup
+    $setup.IdentityResID = @("/subscriptions", $meta.SubscriptionID, $rgidentity) -join "/"
+    $setup.UrlRoot=@($setup.StorageAccount, $setup.Container, $tags.serverEnv.ToUpper()) -join "/"
+
+    Set-MetadataToRegistry $meta $tags $setup
 
 #ensure systemidentity membership
-    Invoke-aadScript -vault $setup.VaultName -secret $setup.VaultSecretAAD -identity $setup.IdentityResID
+    Invoke-AadScript -secretUrl "$($setup.VaultName)secrets/$($setup.VaultSecretAAD)" -identity $setup.IdentityResID
 
 #download resource storage
-    $url = ($setup.StorageAccount, $setup.Container, $setup.serverEnv, $oselRes) -join "/"
+    $url = ($setup.UrlRoot, $oselRes) -join "/"
     $oselZip = "$oselDir\$oselRes"
     LogToFile "downloading OSEL: $url >> $oselZip" 
 
@@ -193,6 +198,10 @@ try
     Invoke-WebRequest -Uri $url -Method GET -Headers $headers -OutFile $oselZip
 
 #unzip
+    if ( Test-Path $oselDir )
+    {
+        Remove-Item -Recurse -Force $oselDir | Out-Null
+    }
     LogToFile "unziping OSEL to [$oselDir]"   
     [System.IO.Compression.ZipFile]::ExtractToDirectory($oselZip, $oselDir)
 
