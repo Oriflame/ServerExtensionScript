@@ -136,8 +136,14 @@ function Invoke-aadScript
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
     Install-Module AzureAD -Force     
 
-    $credential = New-Object System.Management.Automation.PSCredential($techAccount.User, (ConvertTo-SecureString -String $techAccount.Password -AsPlainText -Force))
-    Add-ToAadGroup -groupName $groupName -computerName $env:ComputerName -credential $credential        
+    try 
+    {
+        $credential = New-Object System.Management.Automation.PSCredential($techAccount.User, (ConvertTo-SecureString -String $techAccount.Password -AsPlainText -Force))
+        Add-ToAadGroup -groupName $groupName -computerName $env:ComputerName -credential $credential                    
+    }
+    catch {
+        LogToFile "IGNORED Add to AAD error: $_"        
+    }
 } 
 
 
