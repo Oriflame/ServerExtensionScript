@@ -37,6 +37,30 @@ function Get-Token($resource, $identity)
     $meta.access_token
 }
 
+function Set-OriInitScriptProperty($name, $value)
+{
+	$path = "HKLM:\SOFTWARE\Oriflame\InitScript"
+
+	LogToFile "Registry Set: $path >> $name"
+	if (-not (Test-Path -Path $path))
+	{
+		New-Item -Path (Split-Path -Path $path) -Name (Split-Path -Path $path -Leaf) -Force | Out-Null
+	}
+
+	Set-ItemProperty -Path $path -Name $name -Value $value -ErrorAction Stop;
+}
+
+function Set-MetadataToRegistry($meta, $serversetup)
+{
+    Set-OriInitScriptProperty "vmAzureId" $meta.resourceId
+    $tags = @{}
+    $meta.tagslist | %{ $tags[$_.name] = $_.value }
+    Set-OriInitScriptProperty "vmTags"        ($tags | ConvertTo-Json)
+    Set-OriInitScriptProperty "vmIdentity"    $serverSetup.IdentityResID
+    Set-OriInitScriptProperty "vaultname"     (($serverSetup.vaultname -replace 'https://') -split '\.')[0]
+    Set-OriInitScriptProperty "UrlRoot"       (@($setup.StorageAccount, $setup.Container, $setup.serverEnv) -join "/")
+}
+
 function Get-ServerSetup($b64json)
 {
     try {    
@@ -143,9 +167,11 @@ try
 #get Metadata
     $metadataurl = "http://169.254.169.254/metadata/instance/compute?api-version=2019-06-04"
     $meta = Invoke-RestMethod -Uri $metadataurl -Headers @{ Metadata="true" }
-    LogToFile "Metadata: $($meta.tagsList | Out-String)"
+    LogToFile "Metadata: $($meta.tagsList | Out-String)"    
     $setup.ServerEnv=($meta.tagslist | ?{ $_.name -eq 'ServerEnv' }).value.ToUpper()
     $setup.IdentityResID = @("/subscriptions", $meta.SubscriptionID, $rgidentity) -join "/"
+
+    Set-MetadataToRegistry $meta $setup
 
 #ensure systemidentity membership
     Invoke-aadScript -vault $setup.VaultName -secret $setup.VaultSecretAAD -identity $setup.IdentityResID
