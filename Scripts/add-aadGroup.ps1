@@ -38,15 +38,13 @@ function Add-ToAadGroup( [string] $groupName, [string] $computerName, [pscredent
     $aadGroup = (Get-AzureADGroup -SearchString $groupName | Select-Object -First 1)
     if ( !$aadGroup ) { throw "Group [$groupName] does not exist in Azure AD" }
     
-    $aadComputerPrincipal = (Get-AzureADServicePrincipal -SearchString $computerName | Select-Object -First 1)
+    $aadComputerPrincipal = (Get-AzureADServicePrincipal -SearchString $computerName)
     if ( !$aadComputerPrincipal ) { throw "Server Principal [$computerName] does not exist in Azure AD - check MSI (Managed service identity) is ON" }
 
-    $parAdd = @{
-        ObjectId    = $aadGroup.objectid 
-        RefObjectId = $aadComputerPrincipal.objectid
-    }       
-    LogToFile( "Adding machine $computerName[$($parAdd.RefObjectId)] to $groupName[$($parAdd.ObjectId)] ... ")       
-    Add-AzureADGroupMember @parAdd
+    foreach( $principal in $aadComputerPrincipal.ObjectId ) {
+        LogToFile( "Adding machine principal $computerName[$principal] to $groupName[$($aadGroup.objectid)] ... ")       
+        Add-AzureADGroupMember -ObjectId $aadGroup.objectid -RefObjectId $principal    
+    }
     LogToFile( "... OK")
 }
 
