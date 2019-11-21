@@ -12,6 +12,7 @@
     "vmOSStorageType":    { "type": "string" },
     "vmOSVersion":        { "type": "string" },
     "vmAvailabilitySet":  { "type": "string" },
+    "countAvailabilityZones": { "type": "int", "defaultValue": 0 },
 
     "vmAdminUsername":    { "type": "string" },
     "vmAdminPassword":    { "type": "securestring" },
@@ -39,11 +40,8 @@
     "scheduleAutoShutDownTime": { "type": "string", "defaultValue": "0000" },
 
     "managedidentity":    { "type": "string" }, 
-    // "useridentityName":   { "type": "string" }, 
     "useridentityCommon": { "type": "string" }, 
     "useridentityRegion": { "type": "string" }, 
-    // "aadGroupExec":       { "type": "securestring" },
-    // "aadGroupScript" :    { "type": "string" }, 
 
     "DiagnosticsStorageAccountName": { "type": "string" },
 
@@ -52,7 +50,7 @@
                        "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/Scripts/Install-initScript.ps1"
     },
     "SingleServerTemplateUri": { "type": "string", 
-                         "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
+      "defaultValue": "https://raw.githubusercontent.com/Oriflame/ServerExtensionScript/master/ArmTemplates/Online/OnlineSingleServer.json"
     }
 
   },
@@ -92,6 +90,7 @@
           "vmAdminUsername":      { "value": "[parameters('vmAdminUsername')]" },
           "vmAdminPassword":      { "value": "[parameters('vmAdminPassword')]" },
           "vmAvailabilitySetName":{ "value": "[parameters('vmAvailabilitySet')]" },
+          "vmZone":               { "value": "[if( equals(parameters('countAvailabilityZones'), 0), 'null', add(1,mod(copyIndex(parameters('idFirst')), parameters('countAvailabilityZones'))) )]"  },          
                     
           "domainJoin":           { "value": "[parameters('domainJoin')]" },
           "domainJoinToDomain":   { "value": "[parameters('domainJoinToDomain')]" },

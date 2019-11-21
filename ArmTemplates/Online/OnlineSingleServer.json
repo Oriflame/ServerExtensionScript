@@ -46,6 +46,10 @@
     "vmAvailabilitySetName": { "type": "string", "defaultValue": "*",
         "metadata": { "description": "Name of Availability Set - none if empty" }
     },
+    "vmZone": { "type": "string", "defaultValue": "null",
+      "metadata": { "description": "ID of Availability Zone - null if empty" }
+    },
+
     
     "schedule": { "type": "string", "allowedValues": ["Yes", "No"], "defaultValue": "No" },
     "scheduleAutoShutDownTime": { "type": "string", "defaultValue": "0000",
@@ -109,6 +113,9 @@
     "vmIdentity" : { "type": "[concat('systemAssigned', variables('userAssignedType') )]",
                      "userAssignedIdentities":  "[if( variables('hasUserIdentity'), variables('userAssignedIdentity'), json('null') )]"
                    },
+    
+    "availabilityzone": ["[parameters('vmZone')]"],
+    "vmZone": "[if( equals(parameters('vmZone'), 'null'), json('null'), variables('availabilityzone') )]",
 
     "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
     "availabilitySet": {
@@ -124,7 +131,7 @@
     "initScriptExecuteBase": "[concat ('powershell -ExecutionPolicy Unrestricted -File ', variables('initScriptFileName'), ' -setupB64json ', base64(parameters('InitScriptServerSetup')) )]",
 
 
-    "loadBalancerBackendAddressPools": [
+    "loadBalancerBackendAddressPools": [ 
       {
         "id" : "[parameters('existingPublicIpPoolId')]"
       }
@@ -210,6 +217,7 @@
           }
         }
       },
+      "zones": "[variables('vmZone')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
       ]
@@ -523,7 +531,7 @@
         },
         "protectedSettings": {
           "commandToExecute": "[variables('initScriptExecuteBase')]"
-        }
+    }
       },
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
