@@ -217,7 +217,7 @@
           }
         }
       },
-      "zones": "[variables('vmZone')]",
+      /* "zones": "[variables('vmZone')]", */
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
       ]
@@ -555,6 +555,10 @@
     "UserAssignedIdentity": {
       "type": "object",
       "value": "[variables('userAssignedIdentity')]"
+    },
+    "Zones" : {
+      "type": "array",
+      "value": "[variables('vmZone')]"
     }
   }
 }
