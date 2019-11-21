@@ -114,8 +114,8 @@
                      "userAssignedIdentities":  "[if( variables('hasUserIdentity'), variables('userAssignedIdentity'), json('null') )]"
                    },
     
-    "availabilityzone": ["[parameters('vmZone')]"],
-    "vmZone": "[if( equals(parameters('vmZone'), 'null'), json('null'), variables('availabilityzone') )]",
+    // "availabilityzone": ["[parameters('vmZone')]"],
+    "vmZone": "[if( equals(parameters('vmZone'), 'null'), json('null'), parameters('vmZone') )]",
 
     "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
     "availabilitySet": {
@@ -217,7 +217,7 @@
           }
         }
       },
-      /* "zones": "[variables('vmZone')]", */
+      "zones": [ "[variables('vmZone')]" ], 
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
       ]
@@ -557,7 +557,7 @@
       "value": "[variables('userAssignedIdentity')]"
     },
     "Zones" : {
-      "type": "array",
+      "type": "string",
       "value": "[variables('vmZone')]"
     }
   }
