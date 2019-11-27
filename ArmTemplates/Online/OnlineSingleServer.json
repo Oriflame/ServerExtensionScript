@@ -119,7 +119,7 @@
     // "availabilityZone":       "[if( variables('useAvailabilityZone'), variables('availabilityZoneObject'), json('null'))]",
 
     "useAvailabilitySet": "[and(not(equals(parameters('vmAvailabilitySetName'), '*')), not(variables('useAvailabilityZone')))]",        
-    "availabilitySetName": "[if(variables('useAvailabilitySet'), 'none', parameters('vmAvailabilitySetName'))]",        
+    "availabilitySetName": "[if(variables('useAvailabilitySet'), parameters('vmAvailabilitySetName'), 'none')]",        
     "availabilitySetObject": {
       "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
     },
