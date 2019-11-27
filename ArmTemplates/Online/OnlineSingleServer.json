@@ -114,10 +114,11 @@
                      "userAssignedIdentities":  "[if( variables('hasUserIdentity'), variables('userAssignedIdentity'), json('null') )]"
                    },
     
-    // "availabilityzone": ["[parameters('vmZone')]"],
-    // "vmZone": "[if( equals(parameters('vmZone'), 'null'), json('null'), parameters('vmZone') )]",
+    "useAvailabilityZone": "[not(equals(parameters('vmZone'), 'null'))]",        
+    "vmZone": "[if( variables('useAvailabilityZone'), parameters('vmZone'), json('null') )]",
 
-    "availabilitySetName": "[if( equals(parameters('vmAvailabilitySetName'), '*'), 'none', parameters('vmAvailabilitySetName'))]",        
+    "useAvailabilitySet": "[and(not(equals(parameters('vmAvailabilitySetName'), '*')), not(variables('useAvailabilityZone'))))]",        
+    "availabilitySetName": "[if(variables('useAvailabilitySet'), 'none', parameters('vmAvailabilitySetName'))]",        
     "availabilitySet": {
       "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
     },
@@ -181,7 +182,7 @@
       "location":   "[resourceGroup().location]",
       "tags" :      "[parameters('vmTags')]",
       "properties": {
-        "availabilitySet": "[if( equals(parameters('vmAvailabilitySetName'), '*'), json('null'), variables('availabilitySet'))]",        
+        "availabilitySet": "[if( variables('useAvailabilitySet'), json('null'), variables('availabilitySet'))]",        
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
         },
@@ -217,7 +218,7 @@
           }
         }
       },
-      // "zones": [ "[variables('vmZone')]" ], 
+      "zones": [ "[variables('vmZone')]" ], 
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
       ]
