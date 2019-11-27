@@ -114,14 +114,16 @@
                      "userAssignedIdentities":  "[if( variables('hasUserIdentity'), variables('userAssignedIdentity'), json('null') )]"
                    },
     
-    "useAvailabilityZone": "[not(equals(parameters('vmZone'), 'null'))]",        
-    "vmZone": "[if( variables('useAvailabilityZone'), parameters('vmZone'), json('null') )]",
+    "useAvailabilityZone":    "[not(equals(parameters('vmZone'), 'null'))]",        
+    "availabilityZoneObject": [ "[if( variables('useAvailabilityZone'), parameters('vmZone'), '0' )]" ],
+    "availabilityZone":       "[if( variables('useAvailabilityZone'), variables('availabilityZoneObject'), json('null'))]",
 
     "useAvailabilitySet": "[and(not(equals(parameters('vmAvailabilitySetName'), '*')), not(variables('useAvailabilityZone')))]",        
     "availabilitySetName": "[if(variables('useAvailabilitySet'), 'none', parameters('vmAvailabilitySetName'))]",        
-    "availabilitySet": {
+    "availabilitySetObject": {
       "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
     },
+    "availabilitySet": "[if( variables('useAvailabilitySet'), variables('availabilitySetObject'), json('null'))]",        
 
 
     "initScriptSplit": "[split(parameters('InitScriptUri'), '/')]",
@@ -182,7 +184,7 @@
       "location":   "[resourceGroup().location]",
       "tags" :      "[parameters('vmTags')]",
       "properties": {
-        "availabilitySet": "[if( variables('useAvailabilitySet'), json('null'), variables('availabilitySet'))]",        
+        "availabilitySet": "[variables('availabilitySet')]",        
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
         },
@@ -218,7 +220,7 @@
           }
         }
       },
-      "zones": [ "[variables('vmZone')]" ], 
+      "zones": "[variables('availabilityZone')]", 
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
       ]
@@ -557,9 +559,13 @@
       "type": "object",
       "value": "[variables('userAssignedIdentity')]"
     },
+    "AvailabilitySet" : {
+      "type": "object",
+      "value": "[variables('availabilitySet')]"
+    },
     "Zones" : {
-      "type": "string",
-      "value": "[variables('vmZone')]"
+      "type": "object",
+      "value": "[variables('availabilityZone')]"
     }
   }
 }
