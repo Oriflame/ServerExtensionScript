@@ -116,14 +116,14 @@
     
     "useAvailabilityZone":    "[not(equals(parameters('vmZone'), 'null'))]",        
     "availabilityZoneObject": [ "[if( variables('useAvailabilityZone'), parameters('vmZone'), '0' )]" ],
-    "availabilityZone":       "[if( variables('useAvailabilityZone'), variables('availabilityZoneObject'), json('null'))]",
+    // "availabilityZone":       "[if( variables('useAvailabilityZone'), variables('availabilityZoneObject'), json('null'))]",
 
     "useAvailabilitySet": "[and(not(equals(parameters('vmAvailabilitySetName'), '*')), not(variables('useAvailabilityZone')))]",        
     "availabilitySetName": "[if(variables('useAvailabilitySet'), 'none', parameters('vmAvailabilitySetName'))]",        
     "availabilitySetObject": {
       "id": "[resourceId('Microsoft.Compute/availabilitySets',variables('availabilitySetName'))]"
     },
-    "availabilitySet": "[if( variables('useAvailabilitySet'), variables('availabilitySetObject'), json('null'))]",        
+    // the variable really does not exists if null "availabilitySet": "[if( variables('useAvailabilitySet'), variables('availabilitySetObject'), json('null'))]",        
 
 
     "initScriptSplit": "[split(parameters('InitScriptUri'), '/')]",
@@ -184,7 +184,7 @@
       "location":   "[resourceGroup().location]",
       "tags" :      "[parameters('vmTags')]",
       "properties": {
-        "availabilitySet": "[variables('availabilitySet')]",        
+        "availabilitySet": "[if( variables('useAvailabilitySet'), variables('availabilitySetObject'), json('null'))]",        
         "hardwareProfile": {
           "vmSize": "[parameters('vmSize')]"
         },
@@ -220,7 +220,7 @@
           }
         }
       },
-      "zones": "[variables('availabilityZone')]", 
+      "zones": "[if( variables('useAvailabilityZone'), variables('availabilityZoneObject'), json('null'))]", 
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', variables('nicName'))]"
       ]
@@ -561,11 +561,11 @@
     },
     "AvailabilitySet" : {
       "type": "object",
-      "value": "[variables('availabilitySet')]"
+      "value": "[if( variables('useAvailabilitySet'), variables('availabilitySetObject'), json('null'))]"
     },
     "Zones" : {
       "type": "object",
-      "value": "[variables('availabilityZone')]"
+      "value": "[if( variables('useAvailabilityZone'), variables('availabilityZoneObject'), json('null'))]"
     }
   }
 }
