@@ -561,11 +561,11 @@
     },
     "AvailabilitySet" : {
       "type": "object",
-      "value": "[if( variables('useAvailabilitySet'), variables('availabilitySetObject'), json('null'))]"
+      "value": "[variables('availabilitySetObject')]"
     },
     "Zones" : {
       "type": "object",
-      "value": "[if( variables('useAvailabilityZone'), variables('availabilityZoneObject'), json('null'))]"
+      "value": "[variables('availabilityZoneObject')]"
     }
   }
 }

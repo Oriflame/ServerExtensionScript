@@ -90,7 +90,7 @@
           "vmAdminUsername":      { "value": "[parameters('vmAdminUsername')]" },
           "vmAdminPassword":      { "value": "[parameters('vmAdminPassword')]" },
           "vmAvailabilitySetName":{ "value": "[parameters('vmAvailabilitySet')]" },
-          "vmZone":               { "value": "[if( equals(parameters('countAvailabilityZones'), 0), 'null', string(add(1,mod(copyIndex(parameters('idFirst')), parameters('countAvailabilityZones')))) )]"  },          
+          "vmZone":               { "value": "[if( equals(parameters('countAvailabilityZones'), 0), 'null', string(add(1,mod(add(-1,copyIndex(parameters('idFirst'))), parameters('countAvailabilityZones')))) )]"  },          
                     
           "domainJoin":           { "value": "[parameters('domainJoin')]" },
           "domainJoinToDomain":   { "value": "[parameters('domainJoinToDomain')]" },
