@@ -69,22 +69,23 @@ try
 	SimpleLog "Identity: $($setup.IdentityResID)"
 #endregion (decode)
 
-   
-
-#download bootstrap
-    $bootstrapPSlocal = join-path $currentScriptFolder -ChildPath (split-path $setup.BootStrap -leaf)
-    $bootstrapPSurl   = @($setup.StorageAccount, $setup.Container, $setup.BootStrap) -join "/"
-
+#download script files 
     $token = Get-Token $setup.StorageAccount $setup.IdentityResID
     $headers = @{ Authorization="Bearer $token" 
-                 "x-ms-version"="2019-02-02" }
+                "x-ms-version"="2019-02-02" }
 
-    SimpleLog "Download: $bootstrapPSurl >> $bootstrapPSlocal"
-    Invoke-WebRequest -Uri $bootstrapPSurl -Method GET -Headers $headers -OutFile $bootstrapPSlocal
+    foreach( $file in $setup.Files + $setup.BootStrap )
+    {        
+        $local = join-path $currentScriptFolder -ChildPath (split-path $file -leaf)
+        $remote   = @($setup.StorageAccount, $setup.Container, $file) -join "/"
+        SimpleLog "Downloading: $remote >> $local" 
+        Invoke-WebRequest -Uri $remote -Method GET -Headers $headers -OutFile $local    
+    }
 
 #exec bootstrap PS    
-    SimpleLog "Starting bootstrap PS" 
-    &$bootstrapPSlocal -step new-server >> $logFile
+    $localPS = join-path $currentScriptFolder -ChildPath (split-path $setup.BootStrap -leaf)
+    SimpleLog "Starting bootstrap PS: $localPS" 
+    &$localPS >> $logFile
 
 #done    
     SimpleLog "Bootstrap PS finished" 
