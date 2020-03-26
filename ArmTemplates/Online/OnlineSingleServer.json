@@ -7,10 +7,11 @@
     },
     "existingVnetRG": { "type": "string",
         "metadata": { "description": "Existing VNET ResourceGroup" }
-    },
+    },    
     "existingSubnetName": { "type": "string",
         "metadata": { "description": "Existing subnet that contains the domain controller" }
     },
+    "location":           { "type": "string", "defaultValue": "[resourceGroup().location]" },
 
     "existingPublicIpPoolId": { "type": "string", "defaultValue": "null",
       "metadata": { "description": "Existing backend address Pool resource ID on existing Load balancer" }
@@ -157,7 +158,7 @@
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[variables('nicName')]",
       "apiVersion": "2017-06-01",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "tags" : {
           "VM" : "[parameters('vmName')]"  
       },
@@ -181,7 +182,7 @@
       "type":       "Microsoft.Compute/virtualMachines",
       "identity":   "[if( equals(parameters('managedidentity'), 'Yes'), variables('vmIdentity'), json('null'))]",
       "name":       "[parameters('vmName')]",
-      "location":   "[resourceGroup().location]",
+      "location":   "[parameters('location')]",
       "tags" :      "[parameters('vmTags')]",
       "properties": {
         "availabilitySet": "[if( variables('useAvailabilitySet'), variables('availabilitySetObject'), json('null'))]",        
@@ -229,7 +230,7 @@
       "name": "[concat(parameters('vmName'),'/', variables('diagnosticsExtensionName'))]",
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "dependsOn": [
         "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
       ],
@@ -471,7 +472,7 @@
       "name": "[concat(parameters('vmName'),'/joindomain')]",
       "condition": "[equals(parameters('domainJoin'), 'Yes')]",
       "apiVersion": "2016-03-30",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Compute",
         "type": "JsonADDomainExtension",
@@ -498,7 +499,7 @@
       "type": "Microsoft.DevTestLab/schedules",
       "apiVersion": "2018-09-15",
       "name": "[concat('shutdown-computevm-', parameters('vmName'))]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
       "condition": "[equals(parameters('schedule'), 'Yes')]",
       "properties": {
           "status": "Enabled",
@@ -522,7 +523,7 @@
       "apiVersion": "2018-06-01",      
       "type": "Microsoft.Compute/virtualMachines/extensions",      
       "name": "[concat(parameters('vmName'), '/CustomScript-', variables('initScriptFileName') )]",
-      "location": "[resourceGroup().location]",
+      "location": "[parameters('location')]",
 
       "properties": {
         "publisher": "Microsoft.Compute",
@@ -546,6 +547,10 @@
     "VMName": {
       "type" : "string",
 	    "value": "[parameters('vmName')]"
+    },
+    "VMLocation": {
+      "type" : "string",
+      "value": "[parameters('location')]"
     },
     "PrivateIPAddress" : {
       "type" : "string",
