@@ -94,6 +94,20 @@ function Get-ServerSetup($b64json)
     }      
 }
 
+function Invoke-WebhookJson( $url, $body )
+{
+    $jsbody = ConvertTo-Json $body
+    LogToFile "POST $url >> `n$jsbody"
+    $r = Invoke-RestMethod -Method POST -URI $url -Body $jsbody -Headers @{ 'Content-Type'='application/json' }
+    LogToFile "Response: $($r | Out-String)"
+}
+
+function Invoke-WebhookAzure( $token, $data )
+{
+    Invoke-WebhookJson "https://s2events.azure-automation.net/webhooks?token=$token" $data
+}
+
+
 function Add-ToAadGroup( [string] $groupName, [string] $computerName, [pscredential] $credential ) 
 {    
     LogToFile( "Connect-AzureAD as $($credential.UserName)")       
@@ -187,6 +201,10 @@ try
 
 #ensure systemidentity membership
     Invoke-AadScript -secretUrl "$($setup.VaultName)secrets/$($setup.VaultSecretAAD)" -identity $setup.IdentityResID
+
+#aad membership
+    LogToFile "AAD registration"
+    Invoke-WebhookAzure "TY80xVcP%2fU%2fVeitKM%2bhOhKsHzny2%2bFjyu82pAvEKG%2bI%3d" @{ computername=$env:COMPUTERNAME }
 
 #download resource storage
     $url = ($setup.UrlRoot, $oselRes) -join "/"

@@ -5,6 +5,8 @@
     "existingVNETName":   { "type": "string" },
     "existingVnetRG":     { "type": "string" },
     "existingSubnetName": { "type": "string" },
+    "location":           { "type": "string" },
+
     "existingPublicIpPoolId": { "type": "string", "defaultValue": "null" },
 
     "vmNameBase":         { "type": "string" },
@@ -81,6 +83,8 @@
           "existingVNETName":     { "value": "[parameters('existingVNETName')]" },
           "existingVnetRG":       { "value": "[parameters('existingVnetRG')]" },
           "existingSubnetName":   { "value": "[parameters('existingSubnetName')]" },
+          "location":             { "value": "[parameters('location')]" },
+          
           "existingPublicIpPoolId":{"value": "[parameters('existingPublicIpPoolId')]" },
           
           "vmName":               { "value": "[concat(parameters('vmNameBase'), if( greater(parameters('idFirst'), 99), '', padLeft(copyIndex(parameters('idFirst')), 2, '0')))]"  },
