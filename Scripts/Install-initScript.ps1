@@ -12,6 +12,7 @@ param
     $rgidentity = "resourceGroups/ArmCommon/providers/Microsoft.ManagedIdentity/userAssignedIdentities/onl-arm-identity"
 #endregion
 
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
 #logging preparation
     if (!(test-path $logDir)) { mkdir $logDir | Out-Null }
